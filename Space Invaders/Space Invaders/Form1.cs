@@ -8,13 +8,20 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+
 namespace Space_Invaders
 {
     public partial class Form1 : Form
     {
         public Form1()
         {
+
             InitializeComponent();
+            InvadersEngine invadersEngine = new InvadersEngine(1000,600,5,5);
+
+          
+
+
         }
     }
 }
