@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Input; //obsluga klawatury 
 
 using System.Windows.Forms;  // tylko MessageBox
+using System.Drawing;
 
 namespace Space_Invaders
 {
@@ -25,6 +26,28 @@ namespace Space_Invaders
         public float x, y;  // private --------------debbug-----------------
         public bool alive;
         private float width, hight;
+        public float Width
+        {
+            get
+            {
+                return width;
+            }
+            private set
+            {
+                width = value;
+            }
+        }
+        public float Hight
+        {
+            get
+            {
+                return hight;
+            }
+            private set
+            {
+                hight = value;
+            }
+        }
         public FO(float x, float y,float width,float hight)
         {
             this.width = width;
@@ -131,16 +154,16 @@ namespace Space_Invaders
 
         Shield[] shield;
 
-        FO gracz;
+        public FO gracz;
         List<FO> enamyBullets;
         List<FO> playerBullets;
 
         //consts
-        private const float UFOsRenderBottom = 0.4f;
+        private const float UFOsRenderBottom = 0.5f;
         private const float UFOsStartXOffset = 0.1f; //how far UFO's will be from right side in start.
 
         private const float ShildsRenderLine = 0.2f;
-        private const float PlayerRenderLine = 0.1f;
+        private const float PlayerRenderLine = 0.12f;
 
         private const float shieldScale = 0.01f;
 
@@ -161,7 +184,7 @@ namespace Space_Invaders
         MoveDirection moveDirection;
         
         private int width, hight, UFOcols, UFOrows;
-        private FO[,] Invaders;
+        public FO[,] Invaders;
 
         private long timeOfGame;
         private long timeOfLastShot;
@@ -191,7 +214,7 @@ namespace Space_Invaders
 
             //Gracz
             //-------------
-            gracz = new FO(width / 2, hight * PlayerRenderLine,1,5);
+            gracz = new FO(width / 2, hight * PlayerRenderLine,30,12);
             //Tarcze
             //-------------
             shield = new Shield[4];
@@ -201,12 +224,12 @@ namespace Space_Invaders
             //-------------
             Invaders = new FO[UFOcols, UFOrows];
 
-            float tempXstep = (hight - (UFOsRenderBottom * hight)) / UFOrows;
-            float tempYstep = (width - (UFOsStartXOffset * width)) / UFOcols;
+            float tempXstep = (width - (UFOsStartXOffset * width)) / UFOcols;
+            float tempYstep = (hight - (UFOsRenderBottom * hight)) / UFOrows;
 
             for (int x=0; x < UFOcols; ++x)
                 for (int y=0; y < UFOrows; ++y)
-                    Invaders[x, y] = new FO((x + 0.5f) * tempXstep, (y + 0.5f) * tempYstep,1,1);//<>><<>><<>><<>><<>><<>><<>><
+                    Invaders[x, y] = new FO((x+0.5f) * tempXstep, hight-((y+0.5f) * tempYstep),30,20);//<>><<>><<>><<>><<>><<>><<>><
             //-------------
             //Pociski
             enamyBullets = new List<FO>();
@@ -223,6 +246,12 @@ namespace Space_Invaders
             MainLoop.Elapsed += OnTimedEvent;
             MainLoop.AutoReset = true;
             MainLoop.Enabled = true;*/
+        }
+
+        public Tuple<int,int> GetSize() //funkcja zwracajaca wymiary planszy
+        {
+            var boardSize=new Tuple<int,int>(this.width,this.hight);
+            return boardSize;
         }
 
         void FrameCalcs(Object myObject, EventArgs myEventArgs) //arg wymagane dla EventHandler
