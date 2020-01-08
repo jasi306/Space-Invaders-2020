@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+//using System.Timers;
+
 using System.Windows.Input; //obsluga klawatury 
 
 using System.Windows.Forms;  // tylko MessageBox
@@ -18,6 +20,8 @@ namespace Space_Invaders
 
     class FO
     {
+        
+
         public float x, y;  // private --------------debbug-----------------
         public bool alive;
         private float width, hight;
@@ -122,6 +126,9 @@ namespace Space_Invaders
 
     class InvadersEngine
     {
+        //private static System.Timers.Timer MainLoop;
+        private static Timer MainLoop;
+
         Shield[] shield;
 
         FO gracz;
@@ -159,11 +166,12 @@ namespace Space_Invaders
         private long timeOfGame;
         private long timeOfLastShot;
 
-
+       
 
         public InvadersEngine(int width, int hight, int UFOcols, int UFOrows)
         {
-            
+
+           
 
             timeOfGame = 0;
             timeOfLastShot = -10000;
@@ -204,26 +212,47 @@ namespace Space_Invaders
             enamyBullets = new List<FO>();
             playerBullets = new List<FO>();
 
+            MainLoop = new Timer();
+            MainLoop.Tick += new EventHandler(FrameCalcs);
+            MainLoop.Interval = 1000 / 60;
+            MainLoop.Start();
+            
+            /*
+            MainLoop = new System.Timers.Timer(2000);
+            // Hook up the Elapsed event for the timer. 
+            MainLoop.Elapsed += OnTimedEvent;
+            MainLoop.AutoReset = true;
+            MainLoop.Enabled = true;*/
         }
 
-        void FrameCalcs()
+        void FrameCalcs(Object myObject, EventArgs myEventArgs) //arg wymagane dla EventHandler
         {
+            timeOfGame++;
             MoveNextUfo();
-            while (true)
+            keyboard();
+            animateBullets();
+        }
+
+        private void keyboard()
+        {
+            if (Keyboard.IsKeyDown(Key.A) || Keyboard.IsKeyDown(Key.Left))
             {
-                if (Keyboard.IsKeyDown(Key.A) || Keyboard.IsKeyDown(Key.Left))
-                {
-                    gracz.x += -1;
-                }
-                if (Keyboard.IsKeyDown(Key.D) || Keyboard.IsKeyDown(Key.Right))
-                {
-                    gracz.x += 1;
-                }
-                if ((Keyboard.IsKeyDown(Key.W) || Keyboard.IsKeyDown(Key.Up) || Keyboard.IsKeyDown(Key.Space)) && timeOfGame - timeOfLastShot > cooldown)
-                {
-                    FirePlayer();
-                }
+                gracz.x += -1;
             }
+            if (Keyboard.IsKeyDown(Key.D) || Keyboard.IsKeyDown(Key.Right))
+            {
+                gracz.x += 1;
+            }
+            if ((Keyboard.IsKeyDown(Key.W) || Keyboard.IsKeyDown(Key.Up) || Keyboard.IsKeyDown(Key.Space)) && timeOfGame - timeOfLastShot > cooldown)
+            {
+                FirePlayer();
+            }
+        }
+
+        public void FirePlayer()
+        {
+            playerBullets.Add(new FO(gracz.x, gracz.y + 10, 10, 10)); //<><><><><><><>< temp values
+            timeOfLastShot = timeOfGame;
         }
 
         private void animateBullets()
@@ -255,20 +284,8 @@ namespace Space_Invaders
             });
             enamyBullets.RemoveAll(notAlive);
             //////////////////////////////////////////////
-
         }
-        private bool notAlive(FO fo)
-        {
-            return !fo.alive;
-        }
- 
 
-
-        public void FirePlayer()
-        {
-            playerBullets.Add(new FO(gracz.x, gracz.y+10, 10, 10)); //<><><><><><><>< temp values
-            timeOfLastShot = timeOfGame;
-        }
 
         private void MoveNextUfo()
         {
@@ -283,7 +300,7 @@ namespace Space_Invaders
                     if (ifUfoMustTurn())
                     {
                         moveDirection = (MoveDirection.Left == moveDirection) ? MoveDirection.Right : MoveDirection.Left;
-                        MoveDown();
+                        MoveUfoDown();
                     }
                 }
 
@@ -294,7 +311,14 @@ namespace Space_Invaders
             } while (Invaders[x,y].alive);
             Invaders[x, y].move((moveDirection == MoveDirection.Right) ? moveConstInPxX : -moveConstInPxX , 0);
         }
-        private void MoveDown()
+
+        private bool notAlive(FO fo)
+        {
+            return !fo.alive;
+        }
+
+
+        private void MoveUfoDown()
         {
             for (int x = 0; x < UFOcols; ++x) //kolumna
                 for (int y = 0; y < UFOrows; ++y) //wiersz
