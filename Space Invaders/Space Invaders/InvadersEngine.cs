@@ -82,6 +82,7 @@ namespace Space_Invaders
 
     class Shield : FO
     {
+        
         int cols = 26;
         int rows = 22;
         public FO[,] elements;
@@ -131,24 +132,26 @@ namespace Space_Invaders
             MessageBox.Show(outp);
         }
 
-        public void destroy(int x, int y,int power = 6) 
+        public void destroy(int x, int y,int power = 6) //na pewno niszczy wskazany element. Eksplozja roznosi sie po okolicznych elementach
         {
-            if (x < 0 || y < 0 || x > cols - 1 || y > rows - 1) return;
-            if (elements[x, y].alive == false) return;
-
+            if (x < 0 || y < 0 || x > cols - 1 || y > rows - 1) return;  //wyjscie jesli zle wspolrzedne
+            if (elements[x, y].alive == false) return;// wyjscie jesli juz martwy, martwe nie przewodza eksplozji
 
             Random r;
             r = new Random();
-           // r.Next();
 
             elements[x, y].alive = false;
             for (int i = -1; i <= 1; ++i) for (int j = -1; j <= 1; ++j)
-                    if (r.Next() % 6+power> 4)  destroy(x+i, y+j, power - 3 + j ); //Do zabawy
-        }
+                    if (r.Next() % 6+power> 4)  destroy(x+i, y+j, power - 3 + j ); //Do zabawy z wartosciami
+        }                                                                          //malo satysfakcjonujacy efekt
     };
 
     class InvadersEngine
     {
+        //DEBBUG
+        public bool IfLastWasDebbugMessage;
+        //DEBBUG
+
         //private static System.Timers.Timer MainLoop;
         private static Timer MainLoop;
 
@@ -169,7 +172,7 @@ namespace Space_Invaders
 
         private const float moveConst = 0.02f;
 
-        private const int cooldown = 300;
+        private const int cooldown = 10;
         //
         private const float BulletSpeed=0.5f;
 
@@ -186,15 +189,16 @@ namespace Space_Invaders
         private int width, hight, UFOcols, UFOrows;
         public FO[,] Invaders;
 
-        private long timeOfGame;
-        private long timeOfLastShot;
+        private long timeOfGame;    //liczy klatki
+        private long timeOfLastShot;//zapisuje czas ostatniego strzalu do sprawdzenia cooldowna
 
        
 
         public InvadersEngine(int width, int hight, int UFOcols, int UFOrows)
         {
-
-           
+            //DEBBUG
+            IfLastWasDebbugMessage = false;
+            //DEBBUG
 
             timeOfGame = 0;
             timeOfLastShot = -10000;
@@ -257,9 +261,13 @@ namespace Space_Invaders
         void FrameCalcs(Object myObject, EventArgs myEventArgs) //arg wymagane dla EventHandler
         {
             timeOfGame++;
+            //MessageBox.Show("1 "+timeOfGame.ToString());
             MoveNextUfo();
+            //MessageBox.Show("2 "+timeOfGame.ToString());
             keyboard();
+            //MessageBox.Show("3 "+timeOfGame.ToString());
             animateBullets();
+            //MessageBox.Show("4 "+timeOfGame.ToString());
         }
 
         private void keyboard()
@@ -275,6 +283,25 @@ namespace Space_Invaders
             if ((Keyboard.IsKeyDown(Key.W) || Keyboard.IsKeyDown(Key.Up) || Keyboard.IsKeyDown(Key.Space)) && timeOfGame - timeOfLastShot > cooldown)
             {
                 FirePlayer();
+            }
+
+           
+            if (Keyboard.IsKeyDown(Key.Home))
+            {
+                bool _temp = IfLastWasDebbugMessage;
+                IfLastWasDebbugMessage = true;
+
+                if (!_temp)
+                {
+                    //pozycja gracza.
+                    MessageBox.Show("x=" + gracz.x.ToString() + ", y=" + gracz.y.ToString() );
+                    //cooldown
+                    //MessageBox.Show("Czas gry: " + timeOfGame.ToString() + " Czas ostatniego wystrzalu:" + timeOfLastShot.ToString() + " ilosc pociskow: " + playerBullets.Count);
+                }
+            }
+            else
+            {
+                IfLastWasDebbugMessage = false;
             }
         }
 
@@ -324,20 +351,23 @@ namespace Space_Invaders
                 lastMoved++;
 
                 //czy juz ostatnie?
-                if (lastMoved > UFOrows * UFOcols)
+                if (lastMoved >= UFOrows * UFOcols - 1)
                 {
                     if (ifUfoMustTurn())
                     {
                         moveDirection = (MoveDirection.Left == moveDirection) ? MoveDirection.Right : MoveDirection.Left;
                         MoveUfoDown();
                     }
+                    lastMoved = 0;
                 }
-
+                
                 //policz wspolrzedne
                 x = lastMoved / UFOcols;//sprawdz <<<<<<<<<<<<
                 y = lastMoved % UFOrows;
-                
-            } while (Invaders[x,y].alive);
+               
+
+            } while (!Invaders[x,y].alive);
+
             Invaders[x, y].move((moveDirection == MoveDirection.Right) ? moveConstInPxX : -moveConstInPxX , 0);
         }
 
@@ -363,7 +393,7 @@ namespace Space_Invaders
                         if (Invaders[x, y].alive) break;
                     }
             else
-                for (int x = UFOcols; x >= 0 ; --x) //kolumna
+                for (int x = UFOcols-1; x >= 0 ; --x) //kolumna
                     for (int y = 0; y < UFOrows; ++y) //wiersz
                     {
                         if (Invaders[x, y].alive) break;
