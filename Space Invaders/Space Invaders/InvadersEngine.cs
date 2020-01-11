@@ -158,12 +158,12 @@ namespace Space_Invaders
         Shield[] shield;
 
         public FO gracz;
-        List<FO> enamyBullets;
-        List<FO> playerBullets;
+        public List<FO> enamyBullets;
+        public List<FO> playerBullets;
 
         //consts
-        private const float UFOsRenderBottom = 0.5f;
-        private const float UFOsStartXOffset = 0.1f; //how far UFO's will be from right side in start.
+        private const float UFOsRenderBottom = 0.6f;
+        private const float UFOsStartXOffset = 0.2f; //how far UFO's will be from right side in start.
 
         private const float ShildsRenderLine = 0.2f;
         private const float PlayerRenderLine = 0.12f;
@@ -182,6 +182,9 @@ namespace Space_Invaders
 
         private int aliveCount;
         private int lastMoved;
+
+        public const int bulletWidth = 10;
+        public const int bulletHeight = 10;
 
         //int moveDirection; //1 right, -1 left
         MoveDirection moveDirection;
@@ -258,7 +261,7 @@ namespace Space_Invaders
             return boardSize;
         }
 
-        void FrameCalcs(Object myObject, EventArgs myEventArgs) //arg wymagane dla EventHandler
+        public void FrameCalcs(Object myObject, EventArgs myEventArgs) //arg wymagane dla EventHandler
         {
             timeOfGame++;
             //MessageBox.Show("1 "+timeOfGame.ToString());
@@ -307,7 +310,7 @@ namespace Space_Invaders
 
         public void FirePlayer()
         {
-            playerBullets.Add(new FO(gracz.x, gracz.y + 10, 10, 10)); //<><><><><><><>< temp values
+            playerBullets.Add(new FO(gracz.x, gracz.y + 10, bulletWidth, bulletHeight)); //<><><><><><><>< temp values
             timeOfLastShot = timeOfGame;
         }
 
