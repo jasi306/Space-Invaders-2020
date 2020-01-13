@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 //using System.Timers;
 
 using System.Windows.Input; //obsluga klawatury 
@@ -21,7 +22,8 @@ namespace Space_Invaders
 
     class FO
     {
-        
+
+        public PictureBox sprite;
 
         public float x, y;  // private --------------debbug-----------------
         public bool alive;
@@ -55,6 +57,7 @@ namespace Space_Invaders
             this.x = x;
             this.y = y;
             alive = true;
+            sprite = new PictureBox();
         }
 
         public void move(float x, float y)
@@ -174,7 +177,7 @@ namespace Space_Invaders
 
         private const int cooldown = 10;
         //
-        private const float BulletSpeed=0.5f;
+        private const float BulletSpeed=2.5f;
 
         private float moveConstInPxX;
         private float moveConstInPxY;
@@ -188,8 +191,25 @@ namespace Space_Invaders
 
         //int moveDirection; //1 right, -1 left
         MoveDirection moveDirection;
-        
-        private int width, hight, UFOcols, UFOrows;
+
+        private int width, hight;
+        private int uFOcols, uFOrows;
+        public int UFOcols
+        {
+            get => uFOcols;
+            private set
+            {
+                uFOcols = value;
+            }
+        }
+        public int UFOrows
+        {
+            get => uFOrows;
+            private set
+            {
+                uFOrows = value;
+            }
+        }
         public FO[,] Invaders;
 
         private long timeOfGame;    //liczy klatki
@@ -242,11 +262,13 @@ namespace Space_Invaders
             enamyBullets = new List<FO>();
             playerBullets = new List<FO>();
 
+            /*
             MainLoop = new Timer();
             MainLoop.Tick += new EventHandler(FrameCalcs);
             MainLoop.Interval = 1000 / 60;
             MainLoop.Start();
-            
+            */
+
             /*
             MainLoop = new System.Timers.Timer(2000);
             // Hook up the Elapsed event for the timer. 
@@ -297,9 +319,9 @@ namespace Space_Invaders
                 if (!_temp)
                 {
                     //pozycja gracza.
-                    MessageBox.Show("x=" + gracz.x.ToString() + ", y=" + gracz.y.ToString() );
+                    //MessageBox.Show("x=" + gracz.x.ToString() + ", y=" + gracz.y.ToString() );
                     //cooldown
-                    //MessageBox.Show("Czas gry: " + timeOfGame.ToString() + " Czas ostatniego wystrzalu:" + timeOfLastShot.ToString() + " ilosc pociskow: " + playerBullets.Count);
+                   MessageBox.Show("Czas gry: " + timeOfGame.ToString() + " Czas ostatniego wystrzalu:" + timeOfLastShot.ToString() + " ilosc pociskow: " + playerBullets.Count);
                 }
             }
             else
@@ -310,7 +332,10 @@ namespace Space_Invaders
 
         public void FirePlayer()
         {
-            playerBullets.Add(new FO(gracz.x, gracz.y + 10, bulletWidth, bulletHeight)); //<><><><><><><>< temp values
+            FO bullet = new FO(gracz.x, gracz.y + 10, bulletWidth, bulletHeight);
+            bullet.sprite.Name = "toDraw";
+            playerBullets.Add(bullet); //<><><><><><><>< temp values
+
             timeOfLastShot = timeOfGame;
         }
 
@@ -321,11 +346,12 @@ namespace Space_Invaders
             {
                 Bullet.move(0, BulletSpeed);
 
-                for (int i = 0; i < UFOcols; ++i) for (int j = 0; j < UFOcols; ++j)
+                for (int i = 0; i < UFOcols; ++i) for (int j = 0; j < UFOrows; ++j)
                         if (Bullet.colisionWith(Invaders[i, j]))
                         {
                             Invaders[i, j].alive = false;
                             Bullet.alive = false;
+                            Form1.Self.Controls.Remove(Bullet.sprite);
                         }
             });
             playerBullets.RemoveAll(notAlive);
@@ -356,7 +382,7 @@ namespace Space_Invaders
                 //czy juz ostatnie?
                 if (lastMoved >= UFOrows * UFOcols - 1)
                 {
-                    if (ifUfoMustTurn())
+                    if (ifUfoMustTurn())//useless
                     {
                         moveDirection = (MoveDirection.Left == moveDirection) ? MoveDirection.Right : MoveDirection.Left;
                         MoveUfoDown();
