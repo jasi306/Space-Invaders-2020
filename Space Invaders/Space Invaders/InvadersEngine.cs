@@ -204,7 +204,7 @@ namespace Space_Invaders
         
         //consts
         private const float UFOsRenderBottom = 0.6f;
-        private const float UFOsStartXOffset = 0.15f; //how far UFO's will be from right side in start.
+        private const float UFOsStartXOffset = 0.1f; //how far UFO's will be from right side in start.
 
         private const float ShildsRenderLine = 0.2f;
         private const float PlayerRenderLine = 0.12f;
