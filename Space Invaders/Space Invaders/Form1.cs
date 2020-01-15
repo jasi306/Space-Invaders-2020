@@ -16,7 +16,7 @@ namespace Space_Invaders
         public static Form1 Self;
 
         const int FPS = 60;
-        readonly InvadersEngine invadersEngine = new InvadersEngine(640, 480, 5, 6);
+        readonly InvadersEngine invadersEngine = new InvadersEngine(640, 480, 4, 6);
 
         Image playerImage;
         Image[,] enemyImages;
@@ -88,6 +88,7 @@ namespace Space_Invaders
         {
             RenderSprites();
             RenderBullets();
+            label1.Text = "Score: " + invadersEngine.PlayerPoints.ToString();
         }
 
         private void RenderSprites()
@@ -98,7 +99,7 @@ namespace Space_Invaders
                 if (invader.alive)
                 {
                     //animowanie przeciwnikow (dziala ale spowalnia gre, mozna odkomentowac)
-                    //invader.sprite.Image = enemyImages[invader.type, (invadersEngine.TimeOfGame / (invadersEngine.AliveCount)) % 2];
+                    invader.sprite.Image = enemyImages[invader.type, invader.spireteNum];
                     
                     SetSpritePosition(invader.sprite, (int)invader.x, (int)invader.y);
                 }
@@ -179,6 +180,7 @@ namespace Space_Invaders
             SpawnEnemies(invadersEngine.Invaders, "aliveEnemy");
             
             gameTimer.Interval = ConvertFPStoMsPerFrame(FPS);
+            label1.Text = "Score: " + invadersEngine.PlayerPoints.ToString();
         }
 
         private int ConvertFPStoMsPerFrame(int fps)
