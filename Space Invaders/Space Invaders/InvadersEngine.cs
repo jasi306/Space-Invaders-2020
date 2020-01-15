@@ -210,7 +210,7 @@ namespace Space_Invaders
 
         private const float moveConst = 0.02f;
 
-        private const int cooldown = 20;
+        private const int cooldown = 10;
         //
         private const float BulletSpeed=5.5f;
 
@@ -220,10 +220,19 @@ namespace Space_Invaders
 
         public int PlayerPoints;
         private int aliveCount;
+        public int AliveCount
+        {
+            get => aliveCount;
+            private set
+            {
+                aliveCount = value;
+            }
+        }
+
         private int lastMoved;
 
-        public const int bulletWidth = 10;
-        public const int bulletHeight = 10;
+        public readonly int bulletWidth = 10;
+        public readonly int bulletHeight = 10;
 
         //int moveDirection; //1 right, -1 left
         MoveDirection moveDirection;
@@ -249,6 +258,15 @@ namespace Space_Invaders
         public Inveider[,] Invaders;
 
         private long timeOfGame;    //liczy klatki
+        public long TimeOfGame
+        {
+            get => timeOfGame;
+            private set
+            {
+                timeOfGame = value;
+            }
+        }
+
         private long timeOfLastShot;//zapisuje czas ostatniego strzalu do sprawdzenia cooldowna
 
        
@@ -387,7 +405,7 @@ namespace Space_Invaders
                     if (Invaders[y, rand].alive) break;
                 }
                 if (!(y < UFOrows)) return;
-                MessageBox.Show("fire! kolumna:"+ rand.ToString());
+                //MessageBox.Show("fire! kolumna:"+ rand.ToString());
                 fireAlien(Invaders[y, rand]);
 
             }
@@ -441,6 +459,7 @@ namespace Space_Invaders
                         {
                             Invaders[i, j].alive = false;
                             Bullet.alive = false;
+                            Form1.Self.Controls.Remove(Bullet.sprite);
                         }
             });
             enamyBullets.RemoveAll(notAlive);
