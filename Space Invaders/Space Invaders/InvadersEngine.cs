@@ -23,6 +23,8 @@ namespace Space_Invaders
     class FO
     {
 
+        public string debbugMessage;
+
         public PictureBox sprite;
 
         public float x, y;  // private --------------debbug-----------------
@@ -68,12 +70,12 @@ namespace Space_Invaders
 
         public bool colisionWith(FO fo)
         {
-            if (fo.x + fo.width / 2 < this.x + this.width / 2 &&
-                fo.x - fo.width / 2 < this.x - this.width / 2)
+            if (fo.x + fo.width / 2 < x + width / 2 &&
+                fo.x - fo.width / 2 < x - width / 2)
             {
 
-                if (fo.y + fo.hight / 2 < this.y + this.hight / 2 &&
-                    fo.y - fo.hight / 2 < this.y - this.hight / 2)
+                if (fo.y + fo.hight / 2 < y + hight / 2 &&
+                    fo.y - fo.hight / 2 < y - hight / 2)
                 {
                     return true;
                 }
@@ -207,9 +209,9 @@ namespace Space_Invaders
 
         private const float moveConst = 0.02f;
 
-        private const int cooldown = 10;
+        private const int cooldown = 15;
         //
-        private const float BulletSpeed=2.5f;
+        private const float BulletSpeed=3.5f;
 
         private float moveConstInPxX;
         private float moveConstInPxY;
@@ -293,6 +295,7 @@ namespace Space_Invaders
                 for (int y=0; y < UFOrows; ++y)
                 {
                     Invaders[x, y] = new Inveider((x + 0.5f) * tempXstep, hight - ((y + 0.5f) * tempYstep), 30, 20, (y>1)?2:(y>2)?1:0  );   //!!!!!!!!!!poprawic warunki!!!!!!!!!!!
+                    Invaders[x, y].debbugMessage = x.ToString()+" " + y.ToString();
                     //!!!!!!!!!!!!! poprawic !!!!!!!!!!!!!!
                 }
 
@@ -340,11 +343,11 @@ namespace Space_Invaders
         {
             if (Keyboard.IsKeyDown(Key.A) || Keyboard.IsKeyDown(Key.Left))
             {
-                gracz.x += -1;
+                gracz.x += -4;
             }
             if (Keyboard.IsKeyDown(Key.D) || Keyboard.IsKeyDown(Key.Right))
             {
-                gracz.x += 1;
+                gracz.x += 4;
             }
             if ((Keyboard.IsKeyDown(Key.W) || Keyboard.IsKeyDown(Key.Up) || Keyboard.IsKeyDown(Key.Space)) && timeOfGame - timeOfLastShot > cooldown)
             {
@@ -399,11 +402,15 @@ namespace Space_Invaders
                 Bullet.move(0, BulletSpeed);
 
                 for (int i = 0; i < UFOcols; ++i) for (int j = 0; j < UFOrows; ++j)
-                        if (Bullet.colisionWith(Invaders[i, j]))
+                        if (Invaders[i, j].alive)
                         {
-                            Invaders[i, j].alive = false;
-                            Bullet.alive = false;
-                            Form1.Self.Controls.Remove(Bullet.sprite);
+                            if (Bullet.colisionWith(Invaders[i, j]))
+                            {
+                                //MessageBox.Show(Invaders[i, j].debbugMessage);
+                                Invaders[i, j].alive = false;
+                                Bullet.alive = false;
+                                Form1.Self.Controls.Remove(Bullet.sprite);
+                            }
                         }
             });
             playerBullets.RemoveAll(notAlive);
@@ -432,7 +439,7 @@ namespace Space_Invaders
                 lastMoved++;
 
                 //czy juz ostatnie?
-                if (lastMoved >= UFOrows * UFOcols - 1)
+                if (lastMoved >= UFOrows * UFOcols )
                 {
                     if (ifUfoMustTurn())//useless
                     {
@@ -441,15 +448,15 @@ namespace Space_Invaders
                     }
                     lastMoved = 0;
                 }
-                
-                //policz wspolrzedne
+
+
                 x = lastMoved / UFOcols;//sprawdz <<<<<<<<<<<<
-                y = lastMoved % UFOrows;
-               
+                y = ((lastMoved-x* UFOcols) % UFOrows);
 
-            } while (!Invaders[x,y].alive);
+               // MessageBox.Show("x = " + x.ToString() + " y = " + y.ToString() + " LM = " + lastMoved.ToString());
+            } while (!Invaders[UFOcols - y-1, UFOrows -1 -x].alive);
 
-            Invaders[x, y].move((moveDirection == MoveDirection.Right) ? moveConstInPxX : -moveConstInPxX , 0);
+            Invaders[UFOcols - y-1, UFOrows -1 - x].move((moveDirection == MoveDirection.Right) ? moveConstInPxX : -moveConstInPxX , 0);
         }
 
         private bool notAlive(FO fo)

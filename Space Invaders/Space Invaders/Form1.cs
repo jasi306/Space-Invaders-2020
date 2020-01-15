@@ -16,7 +16,7 @@ namespace Space_Invaders
         public static Form1 Self;
 
         const int FPS = 60;
-        InvadersEngine invadersEngine = new InvadersEngine(640, 480, 4,4);
+        InvadersEngine invadersEngine = new InvadersEngine(640, 480, 4,8);
         PictureBox playerSprite;
         List<PictureBox> enemiesSprites;
 
