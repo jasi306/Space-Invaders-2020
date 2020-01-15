@@ -13,61 +13,121 @@ namespace Space_Invaders
 {
     public partial class Form1 : Form
     {
-        InvadersEngine invadersEngine = new InvadersEngine(640, 480, 7, 7);
-        PictureBox player;
-        List<PictureBox> enemies;
+        public static Form1 Self;
+
+        const int FPS = 60;
+        InvadersEngine invadersEngine = new InvadersEngine(640, 480, 4,4);
+        PictureBox playerSprite;
+        List<PictureBox> enemiesSprites;
+
+        List<PictureBox> playerBulletsGraphics;
+        List<PictureBox> enemyBulletsGraphics;
+
+        Image playerImage;
+        Image enemyImage;
+        Image playerBulletImage;
+        Image enemyBulletImage;
+
+        string pathToPlayerImage = "..\\Images\\cannon.png";
+        string pathToEnemyImage = "..\\Images\\enemy.png";
+        string pathToPlayerBulletImage = "..\\Images\\cannon.png";
+        string pathToEnemyBulletImage = "..\\Images\\cannon.png";
 
         public static Image resizeImage(Image imgToResize, Size size)
         {
             return (Image)new Bitmap(imgToResize, size);
         }
 
-        void correctHitbox(Control control, int objX, int objY)
+        Tuple<int, int> hitboxCenter(int x, int y, int width, int height)
         {
             //funckja, dzieki ktorej x i y znajduja sie na srodku sprite'u a nie w jego lewym gornym rogu
-            control.Left = objX - control.Size.Width / 2;
-            control.Top = Height - objY - control.Size.Height / 2; //odejmowanie od wartosci wysokosci, aby zachowac os y skierowana w gore
+            var hitbox = new Tuple<int, int>(x - width / 2, Height - y - height); //odejmowanie od wartosci wysokosci, aby zachowac os y skierowana w gore
+            return hitbox;
         }
-        void SpawnPlayer(FO gracz)
+        void setSpritePosition(Control control, int objX, int objY)
         {
-            //nadanie odpowiednich atrybutow sprite'owi z graczem
-            player = new PictureBox();
-            var size = new Size((int)gracz.Width, (int)gracz.Hight);
-            var img = Image.FromFile("..\\Images\\cannon.png", true);
-            player.Image=resizeImage(img, size);
-            player.Size = size;
-            player.Name = "player";
-            correctHitbox(player, (int)gracz.x, (int)gracz.y);
-            player.BringToFront();
-            Controls.Add(player);
+            Tuple<int, int> hitboxCorner = hitboxCenter(objX, objY, control.Size.Width, control.Size.Height);
+            control.Left = hitboxCorner.Item1;
+            control.Top = hitboxCorner.Item2;
         }
 
-        void SpawnInvaders(FO[,] invaders)
+        void assignValues(PictureBox sprite, int posX, int posY, Size size, Image imageWithCorrectMeasures, string name)
         {
-            //nadanie odpowiednich atrybutow sprite'om przeciwnikow
-            enemies = new List<PictureBox>();
-            var size = new Size((int)invaders[0, 0].Width, (int)invaders[0, 0].Hight);
-            var img = Image.FromFile("..\\Images\\enemy.png", true);
-            img = resizeImage(img, size);
-            int i = 0;
-            foreach(FO invader in invaders)
-            {
-                PictureBox enemy = new PictureBox();
-                enemy.Image = img;
-                enemy.Size=size;
-                enemy.Name = "invader" + i.ToString();
-                correctHitbox(enemy, (int)invader.x, (int)invader.y);
-                enemies.Add(enemy);
-                i++;
-            }
-            foreach(PictureBox enemy in enemies)
-            {
-                Controls.Add(enemy);
+            sprite.Size = size;
+            sprite.Image = imageWithCorrectMeasures;
+            sprite.Name = name;
+            setSpritePosition(sprite, posX, posY);
+        }
+
+        void SpawnSingleObject(FO flyingObject, Image imgForSprite, string pictureBoxName)
+        {
+            var size = new Size((int)flyingObject.Width, (int)flyingObject.Hight);
+            var img = resizeImage(imgForSprite, size);
+            assignValues(flyingObject.sprite, (int)flyingObject.x, (int)flyingObject.y, size, img, pictureBoxName);
+            flyingObject.sprite.BringToFront();
+            Controls.Add(flyingObject.sprite);
+        }
+
+        void SpawnSetOfObjects(FO[,] flyingObjects, Image imgForSprite, string pictureBoxName)
+        {
+            var size = new Size((int)flyingObjects[0, 0].Width, (int)flyingObjects[0, 0].Hight);
+            var img = resizeImage(imgForSprite, size);
+            foreach (FO obj in flyingObjects)
+            { 
+                assignValues(obj.sprite, (int)obj.x, (int)obj.y, size, img, pictureBoxName);
+                Controls.Add(obj.sprite);
             }
         }
+
+        private void gameTimer_Tick(object sender, EventArgs e)
+        {
+            invadersEngine.FrameCalcs(sender, e);
+            Render();
+        }
+
+        private void Render()
+        {
+            RenderSprites();
+            RenderBullets();
+        }
+
+        private void RenderSprites()
+        {
+            setSpritePosition(invadersEngine.gracz.sprite, (int)invadersEngine.gracz.x, (int)invadersEngine.gracz.y);
+            foreach(FO invader in invadersEngine.Invaders)
+            {
+                if (invader.alive)
+                {
+                    setSpritePosition(invader.sprite, (int)invader.x, (int)invader.y);
+                }
+                else
+                {
+                    invader.sprite.Hide();
+                }
+            }
+        }
+
+        private void RenderBullets()
+        {
+            foreach(FO bullet in invadersEngine.playerBullets)
+            {
+                switch(bullet.sprite.Name)
+                {
+                    case "toDraw":
+                        SpawnSingleObject(bullet, playerBulletImage, "alive");
+                        break;
+                    case "alive":
+                        setSpritePosition(bullet.sprite, (int)bullet.x, (int)bullet.y);
+                        break;
+                }
+            }
+            
+        }
+
 
         public Form1()
         {
+            Self = this;
 
             InitializeComponent();
 
@@ -76,13 +136,38 @@ namespace Space_Invaders
             Width = windowSize.Item1;
             Height = windowSize.Item2;
 
-            //sprite'y są tworzone i pokazywane na ekranie
-            SpawnPlayer(invadersEngine.gracz);
-            SpawnInvaders(invadersEngine.Invaders);
 
-
-            
         }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            playerSprite = new PictureBox();
+            enemiesSprites = new List<PictureBox>();
+            playerBulletsGraphics = new List<PictureBox>();
+            enemyBulletsGraphics = new List<PictureBox>();
+
+            playerImage = Image.FromFile(pathToPlayerImage);
+            enemyImage = Image.FromFile(pathToEnemyImage);
+            playerBulletImage = Image.FromFile(pathToPlayerBulletImage);
+            enemyBulletImage = Image.FromFile(pathToEnemyBulletImage);
+
+            //sprite'y są tworzone i pokazywane na ekranie
+            SpawnSingleObject(invadersEngine.gracz, playerImage, "player");
+            SpawnSetOfObjects(invadersEngine.Invaders, enemyImage, "aliveEnemy");
+            gameTimer.Interval = convertFPStoMsPerFrame(FPS);
+        }
+
+        private int convertFPStoMsPerFrame(int fps)
+        {
+            int ms = (int)Math.Round(1000 / (double)fps);
+            return ms;
+        }
+
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+
+        }
+
 
     }
 }
