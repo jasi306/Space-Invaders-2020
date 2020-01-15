@@ -90,7 +90,7 @@ namespace Space_Invaders
     {
 
         public int type;
-        int points;
+        public int points;
         public Inveider(float x, float y, float width, float hight,int type) : base(x, y, width, hight)
         {
             this.type = type;
@@ -204,7 +204,7 @@ namespace Space_Invaders
         
         //consts
         private const float UFOsRenderBottom = 0.6f;
-        private const float UFOsStartXOffset = 0.2f; //how far UFO's will be from right side in start.
+        private const float UFOsStartXOffset = 0.15f; //how far UFO's will be from right side in start.
 
         private const float ShildsRenderLine = 0.2f;
         private const float PlayerRenderLine = 0.12f;
@@ -446,7 +446,10 @@ namespace Space_Invaders
                             {
                                 //MessageBox.Show(Invaders[i, j].debbugMessage);
                                 Invaders[i, j].alive = false;
+                                PlayerPoints += Invaders[i, j].points;
                                 Bullet.alive = false;
+                                //MessageBox.Show(PlayerPoints.ToString());
+
                                 Form1.Self.Controls.Remove(Bullet.sprite);
                             }
                         }
@@ -497,7 +500,7 @@ namespace Space_Invaders
 
             Invaders[UFOcols - y-1, UFOrows -1 - x].move((moveDirection == MoveDirection.Right) ? moveConstInPxX : -moveConstInPxX , 0);
             Invaders[UFOcols - y - 1, UFOrows - 1 - x].spireteNum = 1 - Invaders[UFOcols - y - 1, UFOrows - 1 - x].spireteNum;
-            //MessageBox.Show(Invaders[UFOcols - y - 1, UFOrows - 1 - x].type.ToString());
+            //MessageBox.Show(Invaders[UFOcols - y - 1, UFOrows - 1 - x].spireteNum.ToString());
         }
 
         private bool notAlive(FO fo)
