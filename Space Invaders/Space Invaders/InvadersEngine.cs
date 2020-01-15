@@ -21,8 +21,6 @@ namespace Space_Invaders
 
     class FO
     {
-        
-
         public float x, y;  // private --------------debbug-----------------
         public bool alive;
         private float width, hight;
@@ -78,7 +76,38 @@ namespace Space_Invaders
             return false;
         }
     }
-
+    class Inveider : FO
+    {
+        int type;
+        int points;
+        public Inveider(float x, float y, float width, float hight,int type) : base(x, y, width, hight)
+        {
+            this.type = type;
+            switch (type)
+            {
+                case 0:
+                    points = 100;
+                    break;
+                case 1:
+                    points = 200;
+                    break;
+                case 2:
+                    points = 300;
+                    break;
+                default:
+                    MessageBox.Show("Error!");  //---------<<<<<<< niefachowo?
+                    break;
+            }
+        }
+    }
+    class Bullet : FO
+    {
+        int hp;
+        public Bullet(float x, float y, float width, float hight, int hp) : base(x, y, width, hight)
+        {
+            this.hp = hp;
+        }
+    }
 
     class Shield : FO
     {
@@ -161,6 +190,7 @@ namespace Space_Invaders
         List<FO> enamyBullets;
         List<FO> playerBullets;
 
+        
         //consts
         private const float UFOsRenderBottom = 0.5f;
         private const float UFOsStartXOffset = 0.1f; //how far UFO's will be from right side in start.
@@ -180,6 +210,7 @@ namespace Space_Invaders
         private float moveConstInPxY;
         //
 
+        public int PlayerPoints;
         private int aliveCount;
         private int lastMoved;
 
@@ -187,7 +218,7 @@ namespace Space_Invaders
         MoveDirection moveDirection;
         
         private int width, hight, UFOcols, UFOrows;
-        public FO[,] Invaders;
+        public Inveider[,] Invaders;
 
         private long timeOfGame;    //liczy klatki
         private long timeOfLastShot;//zapisuje czas ostatniego strzalu do sprawdzenia cooldowna
@@ -200,6 +231,8 @@ namespace Space_Invaders
             IfLastWasDebbugMessage = false;
             //DEBBUG
 
+
+            PlayerPoints = 0;
             timeOfGame = 0;
             timeOfLastShot = -10000;
 
@@ -226,14 +259,18 @@ namespace Space_Invaders
                 shield[i] = new Shield(i * width / 4 + width / 2, ShildsRenderLine, shieldScale * width, shieldScale * width); //zostaje przy kwadaratach
             //UFO
             //-------------
-            Invaders = new FO[UFOcols, UFOrows];
+            Invaders = new Inveider[UFOcols, UFOrows];
 
             float tempXstep = (width - (UFOsStartXOffset * width)) / UFOcols;
             float tempYstep = (hight - (UFOsRenderBottom * hight)) / UFOrows;
 
             for (int x=0; x < UFOcols; ++x)
                 for (int y=0; y < UFOrows; ++y)
-                    Invaders[x, y] = new FO((x+0.5f) * tempXstep, hight-((y+0.5f) * tempYstep),30,20);//<>><<>><<>><<>><<>><<>><<>><
+                {
+                    Invaders[x, y] = new Inveider((x + 0.5f) * tempXstep, hight - ((y + 0.5f) * tempYstep), 30, 20, (y>1)?2:(y>2)?1:0  );   //!!!!!!!!!!poprawic warunki!!!!!!!!!!!
+                    //!!!!!!!!!!!!! poprawic !!!!!!!!!!!!!!
+                }
+
             //-------------
             //Pociski
             enamyBullets = new List<FO>();
@@ -264,6 +301,8 @@ namespace Space_Invaders
             //MessageBox.Show("1 "+timeOfGame.ToString());
             MoveNextUfo();
             //MessageBox.Show("2 "+timeOfGame.ToString());
+
+
             keyboard();
             //MessageBox.Show("3 "+timeOfGame.ToString());
             animateBullets();
@@ -303,6 +342,17 @@ namespace Space_Invaders
             {
                 IfLastWasDebbugMessage = false;
             }
+        }
+
+        void UfoTryToAttack()
+        {
+            Random r = new Random();
+            if (r.Next() % 200 == 13)
+            {//TRY!
+                int rand = r.Next() % UFOcols;  //TO DO TO DO TO DO
+
+            }
+            
         }
 
         public void FirePlayer()
