@@ -544,8 +544,9 @@ namespace Space_Invaders
 
             for (int x = 0; x < UFOcols; ++x) //kolumna
                 for (int y = 0; y < UFOrows; ++y) //wiersz
-                    if (Invaders[x, y].x + Invaders[x, y].Width * 2 > width || Invaders[x, y].x - Invaders[x, y].Width * 2 < 0)
-                        return true;
+                    if(Invaders[x, y].alive)
+                        if (Invaders[x, y].x + Invaders[x, y].Width * 2 > width || Invaders[x, y].x - Invaders[x, y].Width * 2 < 0)
+                            return true;
             return false;
 
 
