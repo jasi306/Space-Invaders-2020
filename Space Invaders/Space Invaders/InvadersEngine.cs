@@ -70,11 +70,11 @@ namespace Space_Invaders
 
         public bool colisionWith(FO fo)
         {
-            if (fo.x + fo.width / 2 < x + width / 2 &&
+            if (fo.x + fo.width / 2 > x + width / 2 &&
                 fo.x - fo.width / 2 < x - width / 2)
             {
 
-                if (fo.y + fo.hight / 2 < y + hight / 2 &&
+                if (fo.y + fo.hight / 2 > y + hight / 2 &&
                     fo.y - fo.hight / 2 < y - hight / 2)
                 {
                     return true;
@@ -209,9 +209,9 @@ namespace Space_Invaders
 
         private const float moveConst = 0.02f;
 
-        private const int cooldown = 15;
+        private const int cooldown = 20;
         //
-        private const float BulletSpeed=3.5f;
+        private const float BulletSpeed=5.5f;
 
         private float moveConstInPxX;
         private float moveConstInPxY;
@@ -469,24 +469,33 @@ namespace Space_Invaders
         {
             for (int x = 0; x < UFOcols; ++x) //kolumna
                 for (int y = 0; y < UFOrows; ++y) //wiersz
-                    Invaders[x, y].move(0, moveConstInPxY);
+                    Invaders[x, y].move(0, -moveConstInPxY);
         }
 
         private bool ifUfoMustTurn()
         {
+            int x=0, y=0;
+
             if (moveDirection == MoveDirection.Left)
-                for (int x = 0; x < UFOcols; ++x) //kolumna
-                    for (int y = 0; y < UFOrows; ++y) //wiersz
+                for ( x = 0; x < UFOcols; ++x) //kolumna
+                    for (y = 0; y < UFOrows; ++y) //wiersz
                     {
                         if (Invaders[x, y].alive) break;
                     }
             else
-                for (int x = UFOcols-1; x >= 0 ; --x) //kolumna
-                    for (int y = 0; y < UFOrows; ++y) //wiersz
+                for ( x = UFOcols-1; x >= 0 ; --x) //kolumna
+                    for ( y = 0; y < UFOrows; ++y) //wiersz
                     {
                         if (Invaders[x, y].alive) break;
                     }
             //<><><><> TODO
+            x = UFOcols-1 ;y = 0;
+            if(  Invaders[x, y].x + Invaders[x, y].Width > width  || Invaders[x, y].x - Invaders[x, y].Width < 0)
+                return true;
+            x = 0; y = 0;
+            if (Invaders[x, y].x + Invaders[x, y].Width > width || Invaders[x, y].x - Invaders[x, y].Width < 0)
+                return true;
+
             return false;
         }
     }

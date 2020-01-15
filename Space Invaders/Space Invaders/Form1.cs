@@ -70,7 +70,7 @@ namespace Space_Invaders
 
         void SpawnSetOfObjects(FO[,] flyingObjects, Image imgForSprite, string pictureBoxName)
         {
-            var size = new Size((int)flyingObjects[0, 0].Width, (int)flyingObjects[0, 0].Hight);
+            var size = new Size((int)(flyingObjects[0, 0].Width*0.8f), (int)flyingObjects[0, 0].Hight);
             var img = resizeImage(imgForSprite, size);
             foreach (FO obj in flyingObjects)
             { 
