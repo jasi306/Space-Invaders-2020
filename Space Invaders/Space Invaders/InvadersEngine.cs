@@ -23,6 +23,8 @@ namespace Space_Invaders
     class FO
     {
 
+        public int spireteNum;
+
         public string debbugMessage;
 
         public PictureBox sprite;
@@ -60,6 +62,7 @@ namespace Space_Invaders
             this.y = y;
             alive = true;
             sprite = new PictureBox();
+            spireteNum = 0;
         }
 
         public void move(float x, float y)
@@ -493,6 +496,7 @@ namespace Space_Invaders
             } while (!Invaders[UFOcols - y-1, UFOrows -1 -x].alive);
 
             Invaders[UFOcols - y-1, UFOrows -1 - x].move((moveDirection == MoveDirection.Right) ? moveConstInPxX : -moveConstInPxX , 0);
+            Invaders[UFOcols - y - 1, UFOrows - 1 - x].spireteNum = 1 - Invaders[UFOcols - y - 1, UFOrows - 1 - x].spireteNum;
             //MessageBox.Show(Invaders[UFOcols - y - 1, UFOrows - 1 - x].type.ToString());
         }
 
