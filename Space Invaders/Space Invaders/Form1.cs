@@ -159,7 +159,7 @@ namespace Space_Invaders
 
         private int convertFPStoMsPerFrame(int fps)
         {
-            int ms = (int)Math.Round(1000 / (double)fps *10);
+            int ms = (int)Math.Round(1000 / (double)fps );
             return ms;
         }
 

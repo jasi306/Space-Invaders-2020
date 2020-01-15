@@ -382,7 +382,7 @@ namespace Space_Invaders
             {//TRY!
                 int rand = r.Next() % UFOcols;  
                 int y;
-                for(y = 0; y < UFOrows; ++y)
+                for(y = 0; y < UFOrows; ++y)  //error y=4
                 {
                     if (Invaders[y, rand].alive) break;
                 }
@@ -492,7 +492,7 @@ namespace Space_Invaders
 
         private bool ifUfoMustTurn()
         {
-            int x=0, y=0;
+            /*int x=0, y=0;
 
             if (moveDirection == MoveDirection.Left)
                 for ( x = 0; x < UFOcols; ++x) //kolumna
@@ -514,7 +514,15 @@ namespace Space_Invaders
             if (Invaders[x, y].x + Invaders[x, y].Width*2 > width || Invaders[x, y].x - Invaders[x, y].Width*2 < 0)
                 return true;
 
+            return false;*/
+
+            for (int x = 0; x < UFOcols; ++x) //kolumna
+                for (int y = 0; y < UFOrows; ++y) //wiersz
+                    if (Invaders[x, y].x + Invaders[x, y].Width * 2 > width || Invaders[x, y].x - Invaders[x, y].Width * 2 < 0)
+                        return true;
             return false;
+
+
         }
     }
 }
