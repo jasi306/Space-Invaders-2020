@@ -81,6 +81,20 @@ namespace Space_Invaders
         {
             //glowna petla aplikacji
             invadersEngine.FrameCalcs(sender, e);
+            if (!invadersEngine.gracz.alive)
+            {
+                gameTimer.Enabled = false;
+                MessageBox.Show("przegrana");
+                //invadersEngine.reset();
+                //SpawnSingleObject(invadersEngine.gracz, playerImage, "player");
+                //SpawnEnemies(invadersEngine.Invaders, "aliveEnemy");
+            }
+            if (invadersEngine.AliveCount==0)
+            {
+                gameTimer.Enabled = false;
+                MessageBox.Show("wygrana");
+            }
+
             Render();
         }
 

@@ -73,6 +73,8 @@ namespace Space_Invaders
 
         public bool colisionWith(FO fo)
         {
+            if (!alive || !fo.alive) return false; //martwi nie koliduja
+
             if (fo.x + fo.width  > x + width  &&
                 fo.x - fo.width  < x - width )
             {
@@ -113,7 +115,7 @@ namespace Space_Invaders
     }
     class Bullet : FO
     {
-        int hp;
+        public int hp;
         public Bullet(float x, float y, float width, float hight, int hp) : base(x, y, width, hight)
         {
             this.hp = hp;
@@ -276,6 +278,11 @@ namespace Space_Invaders
 
         public InvadersEngine(int width, int hight, int UFOcols, int UFOrows)
         {
+            init( width,  hight,  UFOcols,  UFOrows);
+        }
+
+        public void init(int width, int hight, int UFOcols, int UFOrows)
+        {
             //DEBBUG
             IfLastWasDebbugMessage = false;
             //DEBBUG
@@ -300,7 +307,7 @@ namespace Space_Invaders
 
             //Gracz
             //-------------
-            gracz = new FO(width / 2, hight * PlayerRenderLine,30,12);
+            gracz = new FO(width / 2, hight * PlayerRenderLine, 30, 12);
             //Tarcze
             //-------------
             shield = new Shield[4];
@@ -313,11 +320,11 @@ namespace Space_Invaders
             float tempXstep = (width - (UFOsStartXOffset * width)) / UFOcols;
             float tempYstep = (hight - (UFOsRenderBottom * hight)) / UFOrows;
 
-            for (int x=0; x < UFOcols; ++x)
-                for (int y=0; y < UFOrows; ++y)
+            for (int x = 0; x < UFOcols; ++x)
+                for (int y = 0; y < UFOrows; ++y)
                 {
-                    Invaders[x, y] = new Inveider((x + 0.5f) * tempXstep, hight - ((y + 0.5f) * tempYstep), 30, 20, (y<1)?2:(y<3)?1:0  );   //!!!!!!!!!!poprawic warunki!!!!!!!!!!!
-                    Invaders[x, y].debbugMessage = x.ToString()+" " + y.ToString();
+                    Invaders[x, y] = new Inveider((x + 0.5f) * tempXstep, hight - ((y + 0.5f) * tempYstep), 30, 20, (y < 1) ? 2 : (y < 3) ? 1 : 0);   //!!!!!!!!!!poprawic warunki!!!!!!!!!!!
+                    Invaders[x, y].debbugMessage = x.ToString() + " " + y.ToString();
                     //!!!!!!!!!!!!! poprawic !!!!!!!!!!!!!!
                 }
 
@@ -340,6 +347,13 @@ namespace Space_Invaders
             MainLoop.AutoReset = true;
             MainLoop.Enabled = true;*/
         }
+
+        public void reset()
+        {
+            init( width,  hight,  UFOcols,  UFOrows);
+
+        }
+
 
         public Tuple<int,int> GetSize() //funkcja zwracajaca wymiary planszy
         {
@@ -365,11 +379,11 @@ namespace Space_Invaders
         {
             if (Keyboard.IsKeyDown(Key.A) || Keyboard.IsKeyDown(Key.Left))
             {
-                gracz.x += -4;
+                if(gracz.x-gracz.Width/2 > 0)   gracz.x += -4;
             }
             if (Keyboard.IsKeyDown(Key.D) || Keyboard.IsKeyDown(Key.Right))
             {
-                gracz.x += 4;
+                if (gracz.x + gracz.Width < width) gracz.x += 4;
             }
             if ((Keyboard.IsKeyDown(Key.W) || Keyboard.IsKeyDown(Key.Up) || Keyboard.IsKeyDown(Key.Space)) && timeOfGame - timeOfLastShot > cooldown)
             {
@@ -387,7 +401,7 @@ namespace Space_Invaders
                     //pozycja gracza.
                     //MessageBox.Show("x=" + gracz.x.ToString() + ", y=" + gracz.y.ToString() );
                     //cooldown
-                   MessageBox.Show("Czas gry: " + timeOfGame.ToString() + " Czas ostatniego wystrzalu:" + timeOfLastShot.ToString() + " ilosc pociskow: " + playerBullets.Count + "\n pociski przeciwnikow" + enamyBullets.Count);
+                   //MessageBox.Show("Czas gry: " + timeOfGame.ToString() + " Czas ostatniego wystrzalu:" + timeOfLastShot.ToString() + " ilosc pociskow: " + playerBullets.Count + "\n pociski przeciwnikow" + enamyBullets.Count);
                 }
             }
             else
@@ -401,15 +415,16 @@ namespace Space_Invaders
             Random r = new Random();
             if (r.Next() % 200 == 13)
             {//TRY!
-                int rand = r.Next() % UFOcols;  
+                int rand = r.Next() % UFOcols;
+                //rand = 2;
                 int y;
-                for(y = 0; y < UFOrows; ++y)  //error y=4
+                for(y = UFOrows - 1; y > 0; --y)  //error y=4
                 {
-                    if (Invaders[y, rand].alive) break;
+                    if (Invaders[rand,y].alive) break;
                 }
-                if (!(y < UFOrows)) return;
+                if (!Invaders[rand, y].alive) return;
                 //MessageBox.Show("fire! kolumna:"+ rand.ToString());
-                fireAlien(Invaders[y, rand]);
+                fireAlien(Invaders[rand,y]);
 
             }
             
@@ -438,6 +453,19 @@ namespace Space_Invaders
             playerBullets.ForEach(delegate (Bullet Bullet)
             {
                 Bullet.move(0, BulletSpeed);
+                
+                enamyBullets.ForEach(delegate (Bullet Bullet2)
+                {
+                    if (Bullet.colisionWith(Bullet2))
+                    {
+                        Bullet.alive = false;
+                        //if (--Bullet2.hp < 0)
+                        {
+                        //    Bullet2.alive = false;
+                        }
+                    }
+                });
+                
                 if (Bullet.y > hight + Bullet.Hight) Bullet.alive = false;
                 for (int i = 0; i < UFOcols; ++i) for (int j = 0; j < UFOrows; ++j)
                         if (Invaders[i, j].alive)
@@ -446,6 +474,7 @@ namespace Space_Invaders
                             {
                                 //MessageBox.Show(Invaders[i, j].debbugMessage);
                                 Invaders[i, j].alive = false;
+                                aliveCount--;
                                 PlayerPoints += Invaders[i, j].points;
                                 Bullet.alive = false;
                                 //MessageBox.Show(PlayerPoints.ToString());
@@ -463,18 +492,22 @@ namespace Space_Invaders
                 for (int i = 0; i < UFOcols; ++i) for (int j = 0; j < UFOcols; ++j)
                         if (Bullet.colisionWith(gracz))
                         {
-                            Invaders[i, j].alive = false;
+                            
+                            gracz.alive = false;
                             Bullet.alive = false;
                             Form1.Self.Controls.Remove(Bullet.sprite);
                         }
             });
             enamyBullets.RemoveAll(notAlive);
+
+            //if(!gracz.alive) MessageBox.Show("przegrana");
             //////////////////////////////////////////////
         }
 
 
         private void MoveNextUfo()
         {
+            if (AliveCount==0) return;
             int x, y;
             do {
                 //przesun
@@ -490,12 +523,12 @@ namespace Space_Invaders
                     }
                     lastMoved = 0;
                 }
-
+  
 
                 x = lastMoved / UFOcols;
                 y = ((lastMoved-x* UFOcols) % UFOrows);
 
-               // MessageBox.Show("x = " + x.ToString() + " y = " + y.ToString() + " LM = " + lastMoved.ToString());
+                // MessageBox.Show("x = " + x.ToString() + " y = " + y.ToString() + " LM = " + lastMoved.ToString());
             } while (!Invaders[UFOcols - y-1, UFOrows -1 -x].alive);
 
             Invaders[UFOcols - y-1, UFOrows -1 - x].move((moveDirection == MoveDirection.Right) ? moveConstInPxX : -moveConstInPxX , 0);
@@ -514,7 +547,16 @@ namespace Space_Invaders
             for (int x = 0; x < UFOcols; ++x) //kolumna
                 for (int y = 0; y < UFOrows; ++y) //wiersz
                     Invaders[x, y].move(0, -moveConstInPxY);
+
+            for (int x = 0; x < UFOcols; ++x) //kolumna
+                for (int y = 0; y < UFOrows; ++y) //wiersz
+                    if (Invaders[x, y].alive)
+                        if (Invaders[x, y].y - Invaders[x, y].Hight  < gracz.Hight + gracz.y )
+                            gracz.alive = false;
+
         }
+
+        
 
         private bool ifUfoMustTurn()
         {
