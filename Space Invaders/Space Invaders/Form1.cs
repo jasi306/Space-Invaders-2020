@@ -84,7 +84,7 @@ namespace Space_Invaders
             if (!invadersEngine.gracz.alive)
             {
                 gameTimer.Enabled = false;
-                MessageBox.Show("przegrana");
+                MessageBox.Show("You lose :(\nScore: " + invadersEngine.PlayerPoints.ToString() + "Points\nRemaining enemies: " + invadersEngine.AliveCount.ToString());
                 //invadersEngine.reset();
                 //SpawnSingleObject(invadersEngine.gracz, playerImage, "player");
                 //SpawnEnemies(invadersEngine.Invaders, "aliveEnemy");
@@ -92,7 +92,7 @@ namespace Space_Invaders
             if (invadersEngine.AliveCount==0)
             {
                 gameTimer.Enabled = false;
-                MessageBox.Show("wygrana");
+                MessageBox.Show("You won!\nScore: " + invadersEngine.PlayerPoints.ToString()+ "Points");
             }
 
             Render();
