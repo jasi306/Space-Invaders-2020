@@ -70,12 +70,12 @@ namespace Space_Invaders
 
         public bool colisionWith(FO fo)
         {
-            if (fo.x + fo.width / 2 > x + width / 2 &&
-                fo.x - fo.width / 2 < x - width / 2)
+            if (fo.x + fo.width  > x + width  &&
+                fo.x - fo.width  < x - width )
             {
 
-                if (fo.y + fo.hight / 2 > y + hight / 2 &&
-                    fo.y - fo.hight / 2 < y - hight / 2)
+                if (fo.y + fo.hight  > y + hight &&
+                    fo.y - fo.hight  < y - hight )
                 {
                     return true;
                 }
@@ -400,7 +400,7 @@ namespace Space_Invaders
             playerBullets.ForEach(delegate (FO Bullet)
             {
                 Bullet.move(0, BulletSpeed);
-
+                if (Bullet.y > hight + Bullet.Hight) Bullet.alive = false;
                 for (int i = 0; i < UFOcols; ++i) for (int j = 0; j < UFOrows; ++j)
                         if (Invaders[i, j].alive)
                         {
@@ -418,7 +418,7 @@ namespace Space_Invaders
             enamyBullets.ForEach(delegate (FO Bullet)
             {
                 Bullet.move(0, BulletSpeed);
-
+                if (Bullet.y < 0- Bullet.Hight) Bullet.alive = false;
                 for (int i = 0; i < UFOcols; ++i) for (int j = 0; j < UFOcols; ++j)
                         if (Bullet.colisionWith(gracz))
                         {
@@ -450,7 +450,7 @@ namespace Space_Invaders
                 }
 
 
-                x = lastMoved / UFOcols;//sprawdz <<<<<<<<<<<<
+                x = lastMoved / UFOcols;
                 y = ((lastMoved-x* UFOcols) % UFOrows);
 
                // MessageBox.Show("x = " + x.ToString() + " y = " + y.ToString() + " LM = " + lastMoved.ToString());
