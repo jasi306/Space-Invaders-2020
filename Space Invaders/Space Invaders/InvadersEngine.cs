@@ -85,7 +85,8 @@ namespace Space_Invaders
     }
     class Inveider : FO
     {
-        int type;
+
+        public int type;
         int points;
         public Inveider(float x, float y, float width, float hight,int type) : base(x, y, width, hight)
         {
@@ -189,13 +190,13 @@ namespace Space_Invaders
         //DEBBUG
 
         //private static System.Timers.Timer MainLoop;
-        private static Timer MainLoop;
+        //private static Timer MainLoop;
 
         Shield[] shield;
 
         public FO gracz;
-        public List<FO> enamyBullets;
-        public List<FO> playerBullets;
+        public List<Bullet> enamyBullets;
+        public List<Bullet> playerBullets;
 
         
         //consts
@@ -245,7 +246,7 @@ namespace Space_Invaders
                 uFOrows = value;
             }
         }
-        public FO[,] Invaders;
+        public Inveider[,] Invaders;
 
         private long timeOfGame;    //liczy klatki
         private long timeOfLastShot;//zapisuje czas ostatniego strzalu do sprawdzenia cooldowna
@@ -294,15 +295,15 @@ namespace Space_Invaders
             for (int x=0; x < UFOcols; ++x)
                 for (int y=0; y < UFOrows; ++y)
                 {
-                    Invaders[x, y] = new Inveider((x + 0.5f) * tempXstep, hight - ((y + 0.5f) * tempYstep), 30, 20, (y>1)?2:(y>2)?1:0  );   //!!!!!!!!!!poprawic warunki!!!!!!!!!!!
+                    Invaders[x, y] = new Inveider((x + 0.5f) * tempXstep, hight - ((y + 0.5f) * tempYstep), 30, 20, (y<1)?2:(y<3)?1:0  );   //!!!!!!!!!!poprawic warunki!!!!!!!!!!!
                     Invaders[x, y].debbugMessage = x.ToString()+" " + y.ToString();
                     //!!!!!!!!!!!!! poprawic !!!!!!!!!!!!!!
                 }
 
             //-------------
             //Pociski
-            enamyBullets = new List<FO>();
-            playerBullets = new List<FO>();
+            enamyBullets = new List<Bullet>();
+            playerBullets = new List<Bullet>();
 
             /*
             MainLoop = new Timer();
@@ -394,7 +395,7 @@ namespace Space_Invaders
         }
         public void fireAlien(FO shooter)
         {
-            FO bullet = new FO(shooter.x, shooter.y - 10, bulletWidth, bulletHeight);
+            Bullet bullet = new Bullet(shooter.x, shooter.y - 10, bulletWidth, bulletHeight,1);
             bullet.sprite.Name = "toDraw";
             enamyBullets.Add(bullet); //<><><><><><><>< temp values
             timeOfLastShot = timeOfGame;
@@ -403,7 +404,7 @@ namespace Space_Invaders
 
         public void FirePlayer()
         {
-            FO bullet = new FO(gracz.x, gracz.y + 10, bulletWidth, bulletHeight);
+            Bullet bullet = new Bullet(gracz.x, gracz.y + 10, bulletWidth, bulletHeight,1);
             bullet.sprite.Name = "toDraw";
             playerBullets.Add(bullet); //<><><><><><><>< temp values
 
@@ -413,7 +414,7 @@ namespace Space_Invaders
         private void animateBullets()
         {
             //////////////////////////////////////////////
-            playerBullets.ForEach(delegate (FO Bullet)
+            playerBullets.ForEach(delegate (Bullet Bullet)
             {
                 Bullet.move(0, BulletSpeed);
                 if (Bullet.y > hight + Bullet.Hight) Bullet.alive = false;
@@ -431,7 +432,7 @@ namespace Space_Invaders
             });
             playerBullets.RemoveAll(notAlive);
             //////////////////////////////////////////////
-            enamyBullets.ForEach(delegate (FO Bullet)
+            enamyBullets.ForEach(delegate (Bullet Bullet)
             {
                 Bullet.move(0, -BulletSpeed);
                 if (Bullet.y < 0- Bullet.Hight) Bullet.alive = false;
@@ -473,6 +474,7 @@ namespace Space_Invaders
             } while (!Invaders[UFOcols - y-1, UFOrows -1 -x].alive);
 
             Invaders[UFOcols - y-1, UFOrows -1 - x].move((moveDirection == MoveDirection.Right) ? moveConstInPxX : -moveConstInPxX , 0);
+            //MessageBox.Show(Invaders[UFOcols - y - 1, UFOrows - 1 - x].type.ToString());
         }
 
         private bool notAlive(FO fo)
