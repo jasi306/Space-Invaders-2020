@@ -122,12 +122,31 @@ namespace Space_Invaders
         }
     }
 
+    class Player : FO
+    {
+        public long LastShot;
+        public int boardWidth;
+
+        public Player(float x, float y, float width, float hight,int boardWidth) : base(x, y, width, hight)
+        {
+            LastShot = -10000;
+            this.boardWidth = boardWidth;
+        }
+        public void move(float x)
+        {
+            if (this.x - Width / 2 > 0 && this.x + Width < boardWidth) this.x += x;
+        }
+    }
+
     class Shield : FO
     {
         
         int cols = 26;
         int rows = 22;
         public FO[,] elements;
+
+        public bool ToUpdate = false;
+
         public Shield(float x,float y,float width,float hight) : base(x,y,width,hight)
         {
            // this.width = width;
@@ -199,7 +218,13 @@ namespace Space_Invaders
 
         Shield[] shield;
 
-        public FO gracz;
+        public Player gracz1;
+
+
+        public bool TwoPlayersMode;
+        public Player gracz2;
+
+
         public List<Bullet> enamyBullets;
         public List<Bullet> playerBullets;
 
@@ -272,25 +297,23 @@ namespace Space_Invaders
             }
         }
 
-        private long timeOfLastShot;//zapisuje czas ostatniego strzalu do sprawdzenia cooldowna
 
-       
-
-        public InvadersEngine(int width, int hight, int UFOcols, int UFOrows)
+        public InvadersEngine(int width, int hight, int UFOcols, int UFOrows, bool  TwoPlayersMode)
         {
-            init( width,  hight,  UFOcols,  UFOrows);
+            init( width,  hight,  UFOcols,  UFOrows, TwoPlayersMode);
         }
 
-        public void init(int width, int hight, int UFOcols, int UFOrows)
+        public void init(int width, int hight, int UFOcols, int UFOrows, bool TwoPlayersMode)
         {
             //DEBBUG
             IfLastWasDebbugMessage = false;
             //DEBBUG
 
-
+          
             PlayerPoints = 0;
             timeOfGame = 0;
-            timeOfLastShot = -10000;
+
+            this.TwoPlayersMode = TwoPlayersMode;
 
             this.width = width;
             this.hight = hight;
@@ -307,7 +330,11 @@ namespace Space_Invaders
 
             //Gracz
             //-------------
-            gracz = new FO(width / 2, hight * PlayerRenderLine, 30, 12);
+            gracz1 = new Player( (TwoPlayersMode)?(width / 3): (width / 2), hight * PlayerRenderLine, 30, 12,width);
+
+            if(TwoPlayersMode) gracz2 = new Player( (width / 3)*2 , hight * PlayerRenderLine, 30, 12,width); ;
+
+
             //Tarcze
             //-------------
             shield = new Shield[4];
@@ -350,7 +377,7 @@ namespace Space_Invaders
 
         public void reset()
         {
-            init( width,  hight,  UFOcols,  UFOrows);
+            init( width,  hight,  UFOcols,  UFOrows, TwoPlayersMode);
 
         }
 
@@ -377,20 +404,35 @@ namespace Space_Invaders
 
         private void keyboard()
         {
-            if (Keyboard.IsKeyDown(Key.A) || Keyboard.IsKeyDown(Key.Left))
-            {
-                if(gracz.x-gracz.Width/2 > 0)   gracz.x += -4;
-            }
-            if (Keyboard.IsKeyDown(Key.D) || Keyboard.IsKeyDown(Key.Right))
-            {
-                if (gracz.x + gracz.Width < width) gracz.x += 4;
-            }
-            if ((Keyboard.IsKeyDown(Key.W) || Keyboard.IsKeyDown(Key.Up) || Keyboard.IsKeyDown(Key.Space)) && timeOfGame - timeOfLastShot > cooldown)
-            {
-                FirePlayer();
-            }
+            //gracz 1
 
-           
+            if (Keyboard.IsKeyDown(Key.A))
+                gracz1.move(-4);
+
+
+            if (Keyboard.IsKeyDown(Key.Left))
+                if (TwoPlayersMode)
+                    gracz2.move(-4);
+                else
+                    gracz1.move(-4);
+
+            if (Keyboard.IsKeyDown(Key.D))
+                gracz1.move(4);
+
+            if (Keyboard.IsKeyDown(Key.Right))
+                if (TwoPlayersMode)
+                    gracz2.move(4);
+                else
+                    gracz1.move(4);
+
+            if ((Keyboard.IsKeyDown(Key.W) || Keyboard.IsKeyDown(Key.Space)) )
+                FirePlayer(gracz1);
+            
+
+            if ((Keyboard.IsKeyDown(Key.Up) || Keyboard.IsKeyDown(Key.Enter)) )
+                if(TwoPlayersMode) FirePlayer(gracz2);
+                else FirePlayer(gracz1);
+
             if (Keyboard.IsKeyDown(Key.Home))
             {
                 bool _temp = IfLastWasDebbugMessage;
@@ -413,7 +455,7 @@ namespace Space_Invaders
         void UfoTryToAttack()
         {
             Random r = new Random();
-            if (r.Next() % 200 == 13)
+            if (r.Next() % 20 == 13)
             {//TRY!
                 int rand = r.Next() % UFOcols;
                 //rand = 2;
@@ -433,23 +475,22 @@ namespace Space_Invaders
         {
             Bullet bullet = new Bullet(shooter.x, shooter.y - 10, bulletWidth, bulletHeight,1);
             bullet.sprite.Name = "toDraw";
-            enamyBullets.Add(bullet); //<><><><><><><>< temp values
-            timeOfLastShot = timeOfGame;
+            enamyBullets.Add(bullet);
         }
 
 
-        public void FirePlayer()
+        public void FirePlayer(Player player)
         {
-            Bullet bullet = new Bullet(gracz.x, gracz.y + 10, bulletWidth, bulletHeight,1);
+            if (timeOfGame - player.LastShot < cooldown) return;
+            Bullet bullet = new Bullet(player.x, player.y + player.Width, bulletWidth, bulletHeight,1);
             bullet.sprite.Name = "toDraw";
-            playerBullets.Add(bullet); //<><><><><><><>< temp values
+            playerBullets.Add(bullet);
 
-            timeOfLastShot = timeOfGame;
+            player.LastShot = timeOfGame;
         }
 
         private void animateBullets()
         {
-            //////////////////////////////////////////////
             playerBullets.ForEach(delegate (Bullet Bullet)
             {
                 Bullet.move(0, BulletSpeed);
@@ -459,9 +500,9 @@ namespace Space_Invaders
                     if (Bullet.colisionWith(Bullet2))
                     {
                         Bullet.alive = false;
-                        //if (--Bullet2.hp < 0)
+                        if (--Bullet2.hp < 0)
                         {
-                        //    Bullet2.alive = false;
+                           Bullet2.alive = false;
                         }
                     }
                 });
@@ -490,10 +531,15 @@ namespace Space_Invaders
                 Bullet.move(0, -BulletSpeed);
                 if (Bullet.y < 0- Bullet.Hight) Bullet.alive = false;
                 for (int i = 0; i < UFOcols; ++i) for (int j = 0; j < UFOcols; ++j)
-                        if (Bullet.colisionWith(gracz))
+                        if (Bullet.colisionWith(gracz1))
                         {
-                            
-                            gracz.alive = false;
+                            gracz1.alive = false;
+                            Bullet.alive = false;
+                            Form1.Self.Controls.Remove(Bullet.sprite);
+                        }
+                        if (Bullet.colisionWith(gracz2) && TwoPlayersMode)
+                        {
+                            gracz1.alive = false;
                             Bullet.alive = false;
                             Form1.Self.Controls.Remove(Bullet.sprite);
                         }
@@ -551,8 +597,8 @@ namespace Space_Invaders
             for (int x = 0; x < UFOcols; ++x) //kolumna
                 for (int y = 0; y < UFOrows; ++y) //wiersz
                     if (Invaders[x, y].alive)
-                        if (Invaders[x, y].y - Invaders[x, y].Hight  < gracz.Hight + gracz.y )
-                            gracz.alive = false;
+                        if (Invaders[x, y].y - Invaders[x, y].Hight  < gracz1.Hight + gracz1.y )
+                            gracz1.alive = false;
 
         }
 
