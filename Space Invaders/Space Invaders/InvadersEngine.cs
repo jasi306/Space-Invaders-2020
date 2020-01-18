@@ -544,8 +544,6 @@ namespace Space_Invaders
 
         public void fireAlien(FO shooter)
         {
-
-
             Bullet bullet = new Bullet(shooter.x, shooter.y - 10, bulletWidth, bulletHeight,1);
             bullet.sprite.Name = "toDraw";
             enamyBullets.Add(bullet);
@@ -555,8 +553,9 @@ namespace Space_Invaders
         public void firePlayer(Player player)
         {
 
-            playSound(shootS);
+            
             if (timeOfGame - player.LastShot < cooldown) return;
+            playSound(shootS);
             Bullet bullet = new Bullet(player.x, player.y + player.Hight/2, bulletWidth, bulletHeight,1);
             bullet.sprite.Name = "toDraw";
             playerBullets.Add(bullet);
