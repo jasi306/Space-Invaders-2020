@@ -343,13 +343,13 @@ namespace Space_Invaders
 
             // line = "D:\\beep-01a.wav";
             shootS = new System.Windows.Media.MediaPlayer();
-            shootS.Open(new System.Uri(@"C:\Users\Mati\Desktop\Studia\shoot.wav"));
+            shootS.Open(new System.Uri("shoot.wav", UriKind.Relative));
             explosionS = new System.Windows.Media.MediaPlayer();
-            explosionS.Open(new System.Uri(@"C:\Users\Mati\Desktop\Studia\explosion.wav"));
+            explosionS.Open(new System.Uri("xplosion.wav", UriKind.Relative));
             alienDeadthS = new System.Windows.Media.MediaPlayer();
-            alienDeadthS.Open(new System.Uri(@"C:\Users\Mati\Desktop\Studia\invaderkilled.wav"));
+            alienDeadthS.Open(new System.Uri("invaderkilled.wav", UriKind.Relative));
             ufoLowPitchS = new System.Windows.Media.MediaPlayer();
-            ufoLowPitchS.Open(new System.Uri(@"C:\Users\Mati\Desktop\Studia\ufo_lowpitch.wav"));
+            ufoLowPitchS.Open(new System.Uri("ufo_lowpitch.wav", UriKind.Relative));
 
             PlayerPoints = 0;
             timeOfGame = 0;
@@ -382,7 +382,7 @@ namespace Space_Invaders
             for (int i = 0; i < 4; ++i)
             {
                 shield[i] = new Shield(i * width / 4 + width / 2, ShildsRenderLine*width, shieldScale * width+100, shieldScale * width+100); //zostaje przy kwadaratach
-                MessageBox.Show("" + (i * width / 4 + width / 2) + " " + (ShildsRenderLine* width) + " " + (shieldScale * width) + " " + (shieldScale * width));
+                //MessageBox.Show("" + (i * width / 4 + width / 2) + " " + (ShildsRenderLine* width) + " " + (shieldScale * width) + " " + (shieldScale * width));
             }
             //UFO
             //-------------
