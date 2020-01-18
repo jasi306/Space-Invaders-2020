@@ -16,7 +16,7 @@ namespace Space_Invaders
         public static Form1 Self;
 
         const int FPS = 60;
-        readonly InvadersEngine invadersEngine = new InvadersEngine(640, 480, 4, 6,false);
+        readonly InvadersEngine invadersEngine = new InvadersEngine(640, 480, 9,9 ,true);
 
         Image playerImage;
         Image[,] enemyImages;
@@ -83,7 +83,7 @@ namespace Space_Invaders
             invadersEngine.FrameCalcs(sender, e);
             Render();
 
-            if (!invadersEngine.gracz1.alive)
+            if (!invadersEngine.player1.alive)
             {
                 gameTimer.Enabled = false;
                 MessageBox.Show("You lose :(\nScore: " + invadersEngine.PlayerPoints.ToString() + "Points\nRemaining enemies: " + invadersEngine.AliveCount.ToString());
@@ -107,7 +107,7 @@ namespace Space_Invaders
 
         private void RenderSprites()
         {
-            SetSpritePosition(invadersEngine.gracz1.sprite, (int)invadersEngine.gracz1.x, (int)invadersEngine.gracz1.y);
+            SetSpritePosition(invadersEngine.player1.sprite, (int)invadersEngine.player1.x, (int)invadersEngine.player1.y);
             foreach (Inveider invader in invadersEngine.Invaders)
             {
                 if (invader.alive)
@@ -172,7 +172,7 @@ namespace Space_Invaders
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            var playerSize = new Size((int)invadersEngine.gracz1.Width, (int)invadersEngine.gracz1.Hight);
+            var playerSize = new Size((int)invadersEngine.player1.Width, (int)invadersEngine.player1.Hight);
             var enemySize = new Size((int)invadersEngine.Invaders[0, 0].Width, (int)invadersEngine.Invaders[0, 0].Hight);
             var bulletSize = new Size(invadersEngine.bulletWidth, invadersEngine.bulletHeight);
 
@@ -190,7 +190,7 @@ namespace Space_Invaders
             }
 
             //sprite'y są tworzone i pokazywane na ekranie
-            SpawnSingleObject(invadersEngine.gracz1, playerImage, "player");
+            SpawnSingleObject(invadersEngine.player1, playerImage, "player");
             SpawnEnemies(invadersEngine.Invaders, "aliveEnemy");
             
             gameTimer.Interval = ConvertFPStoMsPerFrame(FPS);

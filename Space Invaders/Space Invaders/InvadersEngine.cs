@@ -258,13 +258,19 @@ namespace Space_Invaders
         //private static System.Timers.Timer MainLoop;
         //private static Timer MainLoop;
 
+        System.Windows.Media.MediaPlayer shootS;
+        System.Windows.Media.MediaPlayer explosionS;
+        System.Windows.Media.MediaPlayer alienDeadthS;
+        System.Windows.Media.MediaPlayer ufoLowPitchS;
+
+
         Shield[] shield;
 
-        public Player gracz1;
+        public Player player1;
 
 
         public bool TwoPlayersMode;
-        public Player gracz2;
+        public Player player2;
 
 
         public List<Bullet> enamyBullets;
@@ -351,7 +357,17 @@ namespace Space_Invaders
             IfLastWasDebbugMessage = false;
             //DEBBUG
 
-          
+
+            // line = "D:\\beep-01a.wav";
+            shootS = new System.Windows.Media.MediaPlayer();
+            shootS.Open(new System.Uri("shoot.wav", UriKind.Relative));
+            explosionS = new System.Windows.Media.MediaPlayer();
+            explosionS.Open(new System.Uri("xplosion.wav", UriKind.Relative));
+            alienDeadthS = new System.Windows.Media.MediaPlayer();
+            alienDeadthS.Open(new System.Uri("invaderkilled.wav", UriKind.Relative));
+            ufoLowPitchS = new System.Windows.Media.MediaPlayer();
+            ufoLowPitchS.Open(new System.Uri("ufo_lowpitch.wav", UriKind.Relative));
+
             PlayerPoints = 0;
             timeOfGame = 0;
 
@@ -372,9 +388,9 @@ namespace Space_Invaders
 
             //Gracz
             //-------------
-            gracz1 = new Player( (TwoPlayersMode)?(width / 3): (width / 2), hight * PlayerRenderLine, 30, 12,width);
+            player1 = new Player( (TwoPlayersMode)?(width / 3): (width / 2), hight * PlayerRenderLine, 30, 12,width);
 
-            if(TwoPlayersMode) gracz2 = new Player( (width / 3)*2 , hight * PlayerRenderLine, 30, 12,width); ;
+            if(TwoPlayersMode) player2 = new Player( (width / 3)*2 , hight * PlayerRenderLine, 30, 12,width); ;
 
 
             //Tarcze
@@ -450,41 +466,43 @@ namespace Space_Invaders
         private void keyboard()
         {
             //gracz 1
+            
 
             if (Keyboard.IsKeyDown(Key.A))
-                gracz1.move(-4);
-
+                player1.move(-4);
 
             if (Keyboard.IsKeyDown(Key.Left))
                 if (TwoPlayersMode)
-                    gracz2.move(-4);
+                    player2.move(-4);
                 else
-                    gracz1.move(-4);
+                    player1.move(-4);
 
             if (Keyboard.IsKeyDown(Key.D))
-                gracz1.move(4);
+                player1.move(4);
+
 
             if (Keyboard.IsKeyDown(Key.Right))
                 if (TwoPlayersMode)
-                    gracz2.move(4);
+                    player2.move(4);
                 else
-                    gracz1.move(4);
+                    player1.move(4);
 
             if ((Keyboard.IsKeyDown(Key.W) || Keyboard.IsKeyDown(Key.Space)) )
-                FirePlayer(gracz1);
+                firePlayer(player1);
             
 
             if ((Keyboard.IsKeyDown(Key.Up) || Keyboard.IsKeyDown(Key.Enter)) )
-                if(TwoPlayersMode) FirePlayer(gracz2);
-                else FirePlayer(gracz1);
+                if(TwoPlayersMode) firePlayer(player2);
+                else firePlayer(player1);
 
             if (Keyboard.IsKeyDown(Key.Home))
             {
                 bool _temp = IfLastWasDebbugMessage;
                 IfLastWasDebbugMessage = true;
-
+                
                 if (!_temp)
                 {
+
                     //pozycja gracza.
                     //MessageBox.Show("x=" + gracz.x.ToString() + ", y=" + gracz.y.ToString() );
                     //cooldown
@@ -516,16 +534,28 @@ namespace Space_Invaders
             }
             
         }
+        
+        void playSound(System.Windows.Media.MediaPlayer sound)
+        {
+            sound.Stop();
+            sound.Play();
+            
+        }
+
         public void fireAlien(FO shooter)
         {
+
+
             Bullet bullet = new Bullet(shooter.x, shooter.y - 10, bulletWidth, bulletHeight,1);
             bullet.sprite.Name = "toDraw";
             enamyBullets.Add(bullet);
         }
 
 
-        public void FirePlayer(Player player)
+        public void firePlayer(Player player)
         {
+
+            playSound(shootS);
             if (timeOfGame - player.LastShot < cooldown) return;
             Bullet bullet = new Bullet(player.x, player.y + player.Hight/2, bulletWidth, bulletHeight,1);
             bullet.sprite.Name = "toDraw";
@@ -573,6 +603,8 @@ namespace Space_Invaders
                                 aliveCount--;
                                 PlayerPoints += Invaders[i, j].points;
                                 Bullet.alive = false;
+                                playSound(alienDeadthS);
+
                                 //MessageBox.Show(PlayerPoints.ToString());
 
                                 Form1.Self.Controls.Remove(Bullet.sprite);
@@ -588,7 +620,7 @@ namespace Space_Invaders
                 {
                     if (shield[i].colisionWith(Bullet))
                     {
-                        //MessageBox.Show("true");
+
                         shield[i].colisionInside(Bullet);
                     }
                 }
@@ -596,18 +628,20 @@ namespace Space_Invaders
                 
                 if (Bullet.y < 0- Bullet.Hight) Bullet.alive = false;
                 for (int i = 0; i < UFOcols; ++i) for (int j = 0; j < UFOcols; ++j)
-                        if (Bullet.colisionWith(gracz1))
+                        if (Bullet.colisionWith(player1))
                         {
-                            gracz1.alive = false;
+                            player1.alive = false;
                             Bullet.alive = false;
                             Form1.Self.Controls.Remove(Bullet.sprite);
+                            playSound(explosionS);
                         }
                         if( TwoPlayersMode)
                         {
-                            if (Bullet.colisionWith(gracz2)){
-                                gracz1.alive = false;
+                            if (Bullet.colisionWith(player2)){
+                                player1.alive = false;
                                 Bullet.alive = false;
                                 Form1.Self.Controls.Remove(Bullet.sprite);
+                                playSound(explosionS);
                             }
                         }
             });
@@ -638,7 +672,7 @@ namespace Space_Invaders
   
 
                 x = lastMoved / UFOcols;
-                y = ((lastMoved-x* UFOcols) % UFOrows);
+                y = ((lastMoved- x* UFOcols) % UFOrows);
 
                 // MessageBox.Show("x = " + x.ToString() + " y = " + y.ToString() + " LM = " + lastMoved.ToString());
             } while (!Invaders[UFOcols - y-1, UFOrows -1 -x].alive);
@@ -663,8 +697,11 @@ namespace Space_Invaders
             for (int x = 0; x < UFOcols; ++x) //kolumna
                 for (int y = 0; y < UFOrows; ++y) //wiersz
                     if (Invaders[x, y].alive)
-                        if (Invaders[x, y].y - Invaders[x, y].Hight  < gracz1.Hight + gracz1.y )
-                            gracz1.alive = false;
+                        if (Invaders[x, y].y - Invaders[x, y].Hight < player1.Hight + player1.y)
+                        {
+                            player1.alive = false;
+                            playSound(explosionS);
+                        }
 
         }
 
