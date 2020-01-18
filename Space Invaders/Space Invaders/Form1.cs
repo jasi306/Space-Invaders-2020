@@ -16,7 +16,7 @@ namespace Space_Invaders
         public static Form1 Self;
 
         const int FPS = 60;
-        readonly InvadersEngine invadersEngine = new InvadersEngine(640, 480, 4, 6,true);
+        readonly InvadersEngine invadersEngine = new InvadersEngine(640, 480, 4, 6,false);
 
         Image playerImage;
         Image[,] enemyImages;

@@ -134,7 +134,12 @@ namespace Space_Invaders
         }
         public void move(float x)
         {
-            if (this.x - Width / 2 > 0 && this.x + Width < boardWidth) this.x += x;
+            if (x < 0) {
+                if (this.x - Width / 2 < 0) return;
+            }
+            else
+                if (this.x + Width > boardWidth) return;
+            this.x += x;
         }
     }
 
@@ -172,8 +177,28 @@ namespace Space_Invaders
 
                 }
             }
+            
             //destroy(10, 0);
             //print_message(); //test
+        }
+
+        public void colisionInside(FO bullet)
+        {
+
+            for (int i = 0; i < rows; ++i)
+            {
+                for (int j = 0; j < cols; ++j)
+                {
+                    if (bullet.colisionWith(elements[i,j]))
+                    {
+                        destroy(i, j);
+                        bullet.alive = false;
+                        ToUpdate = true;
+                        print_message();
+                    }
+                }
+            }
+            MessageBox.Show("col");
         }
 
         public void print_message()  //<>debbug only
@@ -339,7 +364,10 @@ namespace Space_Invaders
             //-------------
             shield = new Shield[4];
             for (int i = 0; i < 4; ++i)
-                shield[i] = new Shield(i * width / 4 + width / 2, ShildsRenderLine, shieldScale * width, shieldScale * width); //zostaje przy kwadaratach
+            {
+                shield[i] = new Shield(i * width / 4 + width / 2, ShildsRenderLine*width, shieldScale * width+100, shieldScale * width+100); //zostaje przy kwadaratach
+                MessageBox.Show("" + (i * width / 4 + width / 2) + " " + (ShildsRenderLine* width) + " " + (shieldScale * width) + " " + (shieldScale * width));
+            }
             //UFO
             //-------------
             Invaders = new Inveider[UFOcols, UFOrows];
@@ -443,7 +471,7 @@ namespace Space_Invaders
                     //pozycja gracza.
                     //MessageBox.Show("x=" + gracz.x.ToString() + ", y=" + gracz.y.ToString() );
                     //cooldown
-                   //MessageBox.Show("Czas gry: " + timeOfGame.ToString() + " Czas ostatniego wystrzalu:" + timeOfLastShot.ToString() + " ilosc pociskow: " + playerBullets.Count + "\n pociski przeciwnikow" + enamyBullets.Count);
+                    //MessageBox.Show("Czas gry: " + timeOfGame.ToString() + " Czas ostatniego wystrzalu:" + timeOfLastShot.ToString() + " ilosc pociskow: " + playerBullets.Count + "\n pociski przeciwnikow" + enamyBullets.Count);
                 }
             }
             else
@@ -455,7 +483,7 @@ namespace Space_Invaders
         void UfoTryToAttack()
         {
             Random r = new Random();
-            if (r.Next() % 20 == 13)
+            if (r.Next() % 200 == 13)
             {//TRY!
                 int rand = r.Next() % UFOcols;
                 //rand = 2;
@@ -482,7 +510,7 @@ namespace Space_Invaders
         public void FirePlayer(Player player)
         {
             if (timeOfGame - player.LastShot < cooldown) return;
-            Bullet bullet = new Bullet(player.x, player.y + player.Width, bulletWidth, bulletHeight,1);
+            Bullet bullet = new Bullet(player.x, player.y + player.Hight/2, bulletWidth, bulletHeight,1);
             bullet.sprite.Name = "toDraw";
             playerBullets.Add(bullet);
 
@@ -507,6 +535,12 @@ namespace Space_Invaders
                     }
                 });
                 
+                for(int i = 0; i < 4; ++i)
+                {
+                    if (shield[i].colisionWith(Bullet))
+                        shield[i].colisionInside(Bullet);
+                }
+
                 if (Bullet.y > hight + Bullet.Hight) Bullet.alive = false;
                 for (int i = 0; i < UFOcols; ++i) for (int j = 0; j < UFOrows; ++j)
                         if (Invaders[i, j].alive)
@@ -528,6 +562,15 @@ namespace Space_Invaders
             //////////////////////////////////////////////
             enamyBullets.ForEach(delegate (Bullet Bullet)
             {
+                for (int i = 0; i < 4; ++i)
+                {
+                    if (shield[i].colisionWith(Bullet))
+                    {
+                        MessageBox.Show("true");
+                        shield[i].colisionInside(Bullet);
+                    }
+                }
+
                 Bullet.move(0, -BulletSpeed);
                 if (Bullet.y < 0- Bullet.Hight) Bullet.alive = false;
                 for (int i = 0; i < UFOcols; ++i) for (int j = 0; j < UFOcols; ++j)
@@ -537,17 +580,16 @@ namespace Space_Invaders
                             Bullet.alive = false;
                             Form1.Self.Controls.Remove(Bullet.sprite);
                         }
-                        if (Bullet.colisionWith(gracz2) && TwoPlayersMode)
+                        if( TwoPlayersMode)
                         {
-                            gracz1.alive = false;
-                            Bullet.alive = false;
-                            Form1.Self.Controls.Remove(Bullet.sprite);
+                            if (Bullet.colisionWith(gracz2)){
+                                gracz1.alive = false;
+                                Bullet.alive = false;
+                                Form1.Self.Controls.Remove(Bullet.sprite);
+                            }
                         }
             });
             enamyBullets.RemoveAll(notAlive);
-
-            //if(!gracz.alive) MessageBox.Show("przegrana");
-            //////////////////////////////////////////////
         }
 
 
@@ -562,7 +604,7 @@ namespace Space_Invaders
                 //czy juz ostatnie?
                 if (lastMoved >= UFOrows * UFOcols )
                 {
-                    if (ifUfoMustTurn())//useless
+                    if (ifUfoMustTurn())
                     {
                         moveDirection = (MoveDirection.Left == moveDirection) ? MoveDirection.Right : MoveDirection.Left;
                         MoveUfoDown();
