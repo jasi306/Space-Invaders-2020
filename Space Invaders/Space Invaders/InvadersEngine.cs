@@ -264,7 +264,7 @@ namespace Space_Invaders
         System.Windows.Media.MediaPlayer ufoLowPitchS;
 
 
-        Shield[] shield;
+        public Shield[] shield;
 
         public Player player1;
 
@@ -284,7 +284,7 @@ namespace Space_Invaders
         private const float ShildsRenderLine = 0.2f;
         private const float PlayerRenderLine = 0.12f;
 
-        private const float shieldScale = 0.01f;
+        public readonly float shieldScale = 0.01f;
 
         private const float moveConst = 0.02f;
 

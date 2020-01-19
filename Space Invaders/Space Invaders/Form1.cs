@@ -16,19 +16,20 @@ namespace Space_Invaders
         public static Form1 Self;
 
         const int FPS = 60;
-        readonly InvadersEngine invadersEngine = new InvadersEngine(640, 480, 9,9 ,true);
+        readonly InvadersEngine invadersEngine = new InvadersEngine(1280, 720, 5,5 ,false);
 
         Image playerImage;
         Image[,] enemyImages;
         Image playerBulletImage;
         Image enemyBulletImage;
+        Image shieldPieceImage;
 
         readonly string pathToPlayerImage = "..\\Images\\cannon.png";
         readonly string[,] pathToEnemyImage = { { "..\\Images\\enemy1_frame1.png", "..\\Images\\enemy1_frame2.png" }, { "..\\Images\\enemy2_frame1.png", "..\\Images\\enemy2_frame2.png" }, { "..\\Images\\enemy3_frame1.png", "..\\Images\\enemy3_frame2.png" } };
         const int typesCount = 3;
         const int animationFramesCount = 2;
 
-
+        readonly string pathToShieldImage = "..\\Images\\shield.png";
         readonly string pathToPlayerBulletImage = "..\\Images\\cannon.png";
         readonly string pathToEnemyBulletImage = "..\\Images\\cannon.png";
 
@@ -77,6 +78,20 @@ namespace Space_Invaders
             }
         }
 
+        void SpawnShields(Shield[] shields, string pictureBoxName)
+        {
+            var size= new Size((int)(invadersEngine.shieldScale * Width), (int)(invadersEngine.shieldScale * Height));
+            var img = shieldPieceImage;
+            foreach (Shield shield in shields)
+            {
+                foreach(FO shieldPiece in shield.elements)
+                {
+                    AssignValues(shieldPiece.sprite, (int)shieldPiece.x, (int)shieldPiece.y, size, img, pictureBoxName);
+                    Controls.Add(shieldPiece.sprite);
+                }
+            }
+
+        }
         private void gameTimer_Tick(object sender, EventArgs e)
         {
             //glowna petla aplikacji
@@ -102,12 +117,33 @@ namespace Space_Invaders
         {
             RenderSprites();
             RenderBullets();
+            //RenderShields();
             label1.Text = "Score: " + invadersEngine.PlayerPoints.ToString();
+        }
+
+        private void RenderShields()
+        {
+            foreach(Shield shield in invadersEngine.shield)
+            {
+                if(shield.ToUpdate)
+                {
+                    foreach(FO shieldPiece in shield.elements)
+                    {
+                        if(shieldPiece.alive==false && shieldPiece.sprite.Visible)
+                        {
+                            shieldPiece.sprite.Hide();
+                        }
+                    }
+                    shield.ToUpdate = false;
+                }
+            }
         }
 
         private void RenderSprites()
         {
             SetSpritePosition(invadersEngine.player1.sprite, (int)invadersEngine.player1.x, (int)invadersEngine.player1.y);
+            if(invadersEngine.TwoPlayersMode)
+                SetSpritePosition(invadersEngine.player2.sprite, (int)invadersEngine.player2.x, (int)invadersEngine.player2.y);
             foreach (Inveider invader in invadersEngine.Invaders)
             {
                 if (invader.alive)
@@ -175,12 +211,16 @@ namespace Space_Invaders
             var playerSize = new Size((int)invadersEngine.player1.Width, (int)invadersEngine.player1.Hight);
             var enemySize = new Size((int)invadersEngine.Invaders[0, 0].Width, (int)invadersEngine.Invaders[0, 0].Hight);
             var bulletSize = new Size(invadersEngine.bulletWidth, invadersEngine.bulletHeight);
+            var shieldPieceSize = new Size((int)(invadersEngine.shieldScale * Width), (int)(invadersEngine.shieldScale * Height));
+
 
             //przeskalowanie tekstur aby zgadzaly sie z faktycznymi wymiarami przeciwnikow
             playerImage = ResizeImage(Image.FromFile(pathToPlayerImage), playerSize);
             playerBulletImage = ResizeImage(Image.FromFile(pathToPlayerBulletImage), bulletSize);
             enemyBulletImage = ResizeImage(Image.FromFile(pathToPlayerBulletImage), bulletSize);
             enemyBulletImage.RotateFlip(RotateFlipType.RotateNoneFlipY);
+            shieldPieceImage = ResizeImage(Image.FromFile(pathToShieldImage), shieldPieceSize);
+            
             for (int i = 0; i < typesCount; i++)
             {
                 for (int j = 0; j < animationFramesCount; j++)
@@ -188,10 +228,12 @@ namespace Space_Invaders
                     enemyImages[i, j] = ResizeImage(Image.FromFile(pathToEnemyImage[i, j]), enemySize);
                 }
             }
-
             //sprite'y są tworzone i pokazywane na ekranie
             SpawnSingleObject(invadersEngine.player1, playerImage, "player");
+            if (invadersEngine.TwoPlayersMode)
+                SpawnSingleObject(invadersEngine.player2, playerImage, "player");
             SpawnEnemies(invadersEngine.Invaders, "aliveEnemy");
+            //SpawnShields(invadersEngine.shield,"shieldPiece");
             
             gameTimer.Interval = ConvertFPStoMsPerFrame(FPS);
             label1.Text = "Score: " + invadersEngine.PlayerPoints.ToString();
