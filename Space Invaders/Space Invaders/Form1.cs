@@ -250,6 +250,9 @@ namespace Space_Invaders
 
         }
 
+        private void label1_Click(object sender, EventArgs e)
+        {
 
+        }
     }
 }

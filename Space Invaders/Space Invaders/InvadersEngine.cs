@@ -92,17 +92,6 @@ namespace Space_Invaders
             }
             return false;
 
-                if (fo.x + fo.width  < x - width  &&
-                fo.x - fo.width  > x + width )
-            {
-
-                if (fo.y + fo.hight  < y - hight &&
-                    fo.y - fo.hight  > y + hight )
-                {
-                    return true;
-                }
-            }
-            return false;
         }
     }
     class Inveider : FO
@@ -151,11 +140,27 @@ namespace Space_Invaders
         }
         public void move(float x)
         {
-            if (x < 0) {
+            if (x < 0)
+            {
                 if (this.x - Width / 2 < 0) return;
             }
             else
                 if (this.x + Width > boardWidth) return;
+            this.x += x;
+        }
+        public void move(float x,Player foo)
+        {
+            float myLeft  = this.x - Width/2;
+            float myRight = this.x + Width/2;
+            float hisLeft = foo.x - foo.Width/2;
+            float hisRight= foo.x + foo.Width/2;
+            //MessageBox.Show("myLeft" + myLeft + "myRight" + myRight + "hisLeft" + hisLeft + "hisRight" + hisRight);
+            if (x < 0)
+            {
+                if (this.x - Width / 2 < 0 ||  ((this.x > foo.x) && myLeft < hisRight ) ) return; //left
+            }
+            else
+                if (this.x + Width > boardWidth || ((this.x < foo.x) && myRight > hisLeft) ) return; //right
             this.x += x;
         }
     }
@@ -163,8 +168,8 @@ namespace Space_Invaders
     class Shield : FO
     {
         
-        int cols = 26;
-        int rows = 22;
+        int cols = 13;
+        int rows = 11;
         public FO[,] elements;
 
         public bool ToUpdate = false;
@@ -181,17 +186,17 @@ namespace Space_Invaders
                 {
                     elements[j,i] = new FO(j + width * (j-7), i + hight * (i-7), width, hight);
                     //for 11x13
-                    /* if (x + y < 2) elements[x, y].alive = false;  //lewy góry róg.
-                     if ((cols - x - 1) + y < 2) elements[x, y].alive = false;  //prawy góry róg.
+                     if (j + y < 2) elements[j, i].alive = false;  //lewy góry róg.
+                     if ((cols - j - 1) + y < 2) elements[j, i].alive = false;  //prawy góry róg.
 
-                     if (Math.Abs(cols/2 - x) + (rows-y-1) < 6 && (rows-y - 1) < 3 && Math.Abs(cols / 2 - x) < 5) elements[x, y].alive = false;  //srodek
-                 */
+                     if (Math.Abs(cols/2 - j) + (rows-i-1) < 6 && (rows-i - 1) < 3 && Math.Abs(cols / 2 - j) < 5) elements[j, i].alive = false;  //srodek
+                 
                  //for 22x26
-                    if (j + i < 4) elements[j, i].alive = false;  //lewy góry róg.
+                    /*if (j + i < 4) elements[j, i].alive = false;  //lewy góry róg.
                     if ((cols - j - 1) + i < 4) elements[j, i].alive = false;  //prawy góry róg.
 
                     if (Math.Abs(cols / 2 - j) + (rows - i - 1) < 12 && (rows - i - 1) < 6 && Math.Abs(cols / 2 - j) < 10) elements[j, i].alive = false;  //srodek
-
+                    */
                 }
             }
             
@@ -276,9 +281,10 @@ namespace Space_Invaders
         public List<Bullet> enamyBullets;
         public List<Bullet> playerBullets;
 
-        
+
         //consts
-        private const float UFOsRenderBottom = 0.6f;
+        private const float UFOsRenderTop = 0.9f;
+        private const float UFOsRenderBottom = 0.5f;
         private const float UFOsStartXOffset = 0.1f; //how far UFO's will be from right side in start.
 
         private const float ShildsRenderLine = 0.2f;
@@ -288,7 +294,7 @@ namespace Space_Invaders
 
         private const float moveConst = 0.02f;
 
-        private const int cooldown = 40;
+        private int cooldown;
         //
         private const float BulletSpeed=5.5f;
 
@@ -334,6 +340,17 @@ namespace Space_Invaders
             }
         }
         public Inveider[,] Invaders;
+        public Inveider Saucer;
+
+        private bool saucerAlive;
+        public bool SaucerAlive
+        {
+            get => saucerAlive;
+            private set
+            {
+                saucerAlive = value;
+            }
+        }
 
         private long timeOfGame;    //liczy klatki
         public long TimeOfGame
@@ -391,7 +408,7 @@ namespace Space_Invaders
             player1 = new Player( (TwoPlayersMode)?(width / 3): (width / 2), hight * PlayerRenderLine, 30, 12,width);
 
             if(TwoPlayersMode) player2 = new Player( (width / 3)*2 , hight * PlayerRenderLine, 30, 12,width); ;
-
+            cooldown = (TwoPlayersMode) ? 60 : 40;
 
             //Tarcze
             //-------------
@@ -403,15 +420,17 @@ namespace Space_Invaders
             }
             //UFO
             //-------------
-            Invaders = new Inveider[UFOcols, UFOrows];
+            SaucerAlive = false;
 
+            Invaders = new Inveider[UFOcols, UFOrows];
+            //UFOsRenderTop 
             float tempXstep = (width - (UFOsStartXOffset * width)) / UFOcols;
-            float tempYstep = (hight - (UFOsRenderBottom * hight)) / UFOrows;
+            float tempYstep = (hight - ( ((1-UFOsRenderBottom) + (1 - UFOsRenderTop)) * hight)) / UFOrows;
 
             for (int x = 0; x < UFOcols; ++x)
                 for (int y = 0; y < UFOrows; ++y)
                 {
-                    Invaders[x, y] = new Inveider((x + 0.5f) * tempXstep, hight - ((y + 0.5f) * tempYstep), 30, 20, (y < 1) ? 2 : (y < 3) ? 1 : 0);   //!!!!!!!!!!poprawic warunki!!!!!!!!!!!
+                    Invaders[x, y] = new Inveider((x + 0.5f) * tempXstep, -(1-UFOsRenderTop) * hight + hight - ((y + 0.5f) * tempYstep), 30, 20, (y < 1) ? 2 : (y < 3) ? 1 : 0);   //!!!!!!!!!!poprawic warunki!!!!!!!!!!!
                     Invaders[x, y].debbugMessage = x.ToString() + " " + y.ToString();
                     //!!!!!!!!!!!!! poprawic !!!!!!!!!!!!!!
                 }
@@ -457,43 +476,65 @@ namespace Space_Invaders
             //MessageBox.Show("2 "+timeOfGame.ToString());
             UfoTryToAttack();
 
+            if (timeOfGame > AliveCount * 20 && !SaucerAlive) tryToSpawnSaucer();
             keyboard();
             //MessageBox.Show("3 "+timeOfGame.ToString());
             animateBullets();
             //MessageBox.Show("4 "+timeOfGame.ToString());
         }
 
+        void tryToSpawnSaucer()
+        {
+            Random r = new Random();
+            if (r.Next() % 500 == 7 )
+            {
+                SaucerAlive = true;
+                Saucer = new Inveider(width, hight * 0.9f, 40, 10, 4);
+
+                MessageBox.Show("UFO!");
+            }
+        }
+
         private void keyboard()
         {
             //gracz 1
-            
-
-            if (Keyboard.IsKeyDown(Key.A))
-                player1.move(-4);
-
-            if (Keyboard.IsKeyDown(Key.Left))
-                if (TwoPlayersMode)
-                    player2.move(-4);
-                else
+            if (!TwoPlayersMode)
+            {
+                if (Keyboard.IsKeyDown(Key.A) || Keyboard.IsKeyDown(Key.Left))
                     player1.move(-4);
-
-            if (Keyboard.IsKeyDown(Key.D))
-                player1.move(4);
-
-
-            if (Keyboard.IsKeyDown(Key.Right))
-                if (TwoPlayersMode)
-                    player2.move(4);
-                else
+                if (Keyboard.IsKeyDown(Key.D) || Keyboard.IsKeyDown(Key.Right))
                     player1.move(4);
+                if (Keyboard.IsKeyDown(Key.W) || Keyboard.IsKeyDown(Key.Space) || Keyboard.IsKeyDown(Key.Up) || Keyboard.IsKeyDown(Key.Enter))
+                    firePlayer(player1);
+            }
+            else
+            {
+                if (Keyboard.IsKeyDown(Key.A))
+                    player1.move(-4,player2);
+                if (Keyboard.IsKeyDown(Key.Left))
+                    player2.move(-4,player1);
 
-            if ((Keyboard.IsKeyDown(Key.W) || Keyboard.IsKeyDown(Key.Space)) )
-                firePlayer(player1);
-            
+                if (Keyboard.IsKeyDown(Key.D))
+                    player1.move(4, player2);
+                if (Keyboard.IsKeyDown(Key.Right))
+                    player2.move(4,player1);
 
-            if ((Keyboard.IsKeyDown(Key.Up) || Keyboard.IsKeyDown(Key.Enter)) )
-                if(TwoPlayersMode) firePlayer(player2);
-                else firePlayer(player1);
+                if(Keyboard.IsKeyDown(Key.W) || Keyboard.IsKeyDown(Key.Space))
+                    firePlayer(player1);
+
+                if(Keyboard.IsKeyDown(Key.Up) || Keyboard.IsKeyDown(Key.Enter))
+                    firePlayer(player2);
+                
+
+            }
+
+                
+
+
+
+                
+
+         
 
             if (Keyboard.IsKeyDown(Key.Home))
             {
@@ -521,7 +562,7 @@ namespace Space_Invaders
             if (r.Next() % 100 == 13)
             {//TRY!
                 int rand = r.Next() % UFOcols;
-                rand = 2;
+                //rand = 2;
                 int y;
                 for(y = UFOrows - 1; y > 0; --y)  //error y=4
                 {
