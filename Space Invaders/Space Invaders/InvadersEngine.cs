@@ -501,7 +501,7 @@ namespace Space_Invaders
 
 
             TimeSpan duration = new TimeSpan();
-            //await PlayAudioAsync(duration, ctsPlay.Token);          
+             //PlayAudioAsync(duration, ctsPlay.Token);          
         }
         private CancellationTokenSource ctsPlay;
         public async Task PlayAudioAsync(TimeSpan duration, CancellationToken cancellationToken)
@@ -537,6 +537,14 @@ namespace Space_Invaders
 
         public void FrameCalcs(Object myObject, EventArgs myEventArgs) //arg wymagane dla EventHandler
         {
+            if (TimeOfGame % 6 == 1)
+            {
+                SaucerAliveS = new System.Windows.Media.MediaPlayer();
+                SaucerAliveS.Open(new System.Uri("..\\Sound\\edit.wav", UriKind.Relative));
+                //https://twistedwave.com/online
+                //SaucerAliveS.MediaEnded += playSound(SaucerAliveS);
+                playSound(SaucerAliveS);
+            }
             timeOfGame++;
             //MessageBox.Show("1 "+timeOfGame.ToString());
             MoveNextUfo();
@@ -552,15 +560,8 @@ namespace Space_Invaders
         }
         void SaucerOperations()
         {
-            /*
-            if (TimeOfGame % 15 == 1)
-            {
-                SaucerAliveS = new System.Windows.Media.MediaPlayer();
-                SaucerAliveS.Open(new System.Uri("..\\Sound\\ufo_highpitch.wav", UriKind.Relative));
-               
-                //SaucerAliveS.MediaEnded += playSound(SaucerAliveS);
-                playSound(SaucerAliveS);
-            }*/
+            
+            
             if (SaucerAlive)
             {
                 //SaucerAliveS.Play();
