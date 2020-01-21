@@ -97,6 +97,14 @@ namespace Space_Invaders
 
         }
     }
+    class Explosion : FO
+    {
+        public int timeOfExistenc;
+        public Explosion(float x, float y, float width, float hight) : base(x, y, width, hight) {
+            timeOfExistenc = 0;
+        }
+    }
+
     class Inveider : FO
     {
 
@@ -221,7 +229,7 @@ namespace Space_Invaders
         */
         }
 
-        public void colisionInside(FO bullet)
+        public void colisionInside(FO bullet,List<Explosion> exp,float expX,float expY)
         {
 
             for (int i = 0; i < rows; ++i)
@@ -234,6 +242,7 @@ namespace Space_Invaders
                         bullet.alive = false;
                         Form1.Self.Controls.Remove(bullet.sprite);
                         ToUpdate = true;
+                        exp.Add(new Explosion(elements[j, i].x, elements[j, i].y, expX, expY));
                         //print_message();
                     }
                 }
@@ -274,6 +283,7 @@ namespace Space_Invaders
 
     class InvadersEngine
     {
+        
         //DEBBUG
         public bool IfLastWasDebbugMessage;
         //DEBBUG
@@ -287,7 +297,7 @@ namespace Space_Invaders
         System.Windows.Media.MediaPlayer SaucerDeadthS;
         System.Windows.Media.MediaPlayer SaucerAliveS;
 
-
+        
         public Shield[] shield;
 
         public Player player1;
@@ -300,7 +310,9 @@ namespace Space_Invaders
         public List<Bullet> enamyBullets;
         public List<Bullet> playerBullets;
 
+        public List<Explosion> explosions;
 
+        private float expX, expY;
         //consts
         private const float UFOsRenderTop = 0.9f;
         private const float UFOsRenderBottom = 0.5f;
@@ -308,6 +320,8 @@ namespace Space_Invaders
 
         private const float ShildsRenderLine = 0.2f;
         private const float PlayerRenderLine = 0.12f;
+
+        private int exposionsTime = 10;
 
         public readonly float shieldScale = 0.1f;
 
@@ -417,6 +431,7 @@ namespace Space_Invaders
             this.UFOcols = UFOcols;
             this.UFOrows = UFOrows;
 
+            
             aliveCount = UFOrows * UFOcols;
 
             moveConstInPxX = moveConst * width;
@@ -464,6 +479,9 @@ namespace Space_Invaders
             enamyBullets = new List<Bullet>();
             playerBullets = new List<Bullet>();
 
+            explosions = new List<Explosion>();
+            expX = width / 50;
+            expY = hight / 50;
             /*
             MainLoop = new Timer();
             MainLoop.Tick += new EventHandler(FrameCalcs);
@@ -487,13 +505,13 @@ namespace Space_Invaders
             mediaPlayer.Clock = timeLine.CreateClock();
             mediaPlayer.Clock.Controller.Begin();*/
 
-            
+
 
 
             TimeSpan duration = new TimeSpan();
             //await PlayAudioAsync(duration, ctsPlay.Token);          
         }
-        private CancellationTokenSource ctsPlay;
+        /*private CancellationTokenSource ctsPlay;
         public async Task PlayAudioAsync(TimeSpan duration, CancellationToken cancellationToken)
         {
             var timeLine = new MediaTimeline(new Uri("..\\Sound\\ufo_highpitch.wav", UriKind.Relative));
@@ -509,7 +527,7 @@ namespace Space_Invaders
             {
                 mediaPlayer.Clock.Controller.Stop();
             }
-        }
+        }*/
 
 
 
@@ -535,11 +553,28 @@ namespace Space_Invaders
 
             SaucerOperations();
 
+            animateExplosion();
             keyboard();
             //MessageBox.Show("3 "+timeOfGame.ToString());
             animateBullets();
             //MessageBox.Show("4 "+timeOfGame.ToString());
         }
+
+        void animateExplosion()
+        {
+            explosions.ForEach(delegate (Explosion explosion)
+            {
+                explosion.timeOfExistenc++;
+                if(explosion.timeOfExistenc > exposionsTime)
+                {
+                    explosion.alive = false;
+                    Form1.Self.Controls.Remove(explosion.sprite);
+                }
+            });
+            explosions.RemoveAll(notAlive);
+        }
+
+
         void SaucerOperations()
         {
             /*
@@ -625,7 +660,7 @@ namespace Space_Invaders
                 
                 if (!_temp)
                 {
-
+                    MessageBox.Show(explosions.Count.ToString());
                     //pozycja gracza.
                     //MessageBox.Show("x=" + gracz.x.ToString() + ", y=" + gracz.y.ToString() );
                     //cooldown
@@ -688,7 +723,18 @@ namespace Space_Invaders
             playerBullets.ForEach(delegate (Bullet Bullet)
             {
                 Bullet.move(0, BulletSpeed);
-                
+
+                if (SaucerAlive)
+                {
+                    if (Bullet.colisionWith(Saucer))
+                    {
+                        Saucer.alive = false;
+                        Bullet.alive = false;
+                        Form1.Self.Controls.Remove(Bullet.sprite);
+                        Form1.Self.Controls.Remove(Saucer.sprite);
+                        explosions.Add(new Explosion(Saucer.x, Saucer.y, expX, expY));
+                    }
+                }
                 enamyBullets.ForEach(delegate (Bullet Bullet2)
                 {
                     if (Bullet.colisionWith(Bullet2))
@@ -708,7 +754,7 @@ namespace Space_Invaders
                 for (int i = 0; i < 4; ++i)
                 {
                     if (shield[i].colisionWith(Bullet))
-                        shield[i].colisionInside(Bullet);
+                        shield[i].colisionInside(Bullet,explosions,expX,expY);
                 }
 
                 if (Bullet.y > hight + Bullet.Hight) Bullet.alive = false;
@@ -723,6 +769,8 @@ namespace Space_Invaders
                                 PlayerPoints += Invaders[i, j].points;
                                 Bullet.alive = false;
                                 playSound(alienDeadthS);
+                                explosions.Add(new Explosion(Invaders[i, j].x, Invaders[i, j].y, expX, expY));
+
 
                                 //MessageBox.Show(PlayerPoints.ToString());
 
@@ -740,7 +788,7 @@ namespace Space_Invaders
                     if (shield[i].colisionWith(Bullet))
                     {
 
-                        shield[i].colisionInside(Bullet);
+                        shield[i].colisionInside(Bullet, explosions, expX, expY);
                     }
                 }
 
