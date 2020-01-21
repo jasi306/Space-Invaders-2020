@@ -117,7 +117,7 @@ namespace Space_Invaders
         {
             RenderSprites();
             RenderBullets();
-            //RenderShields();
+            RenderShields();
             label1.Text = "Score: " + invadersEngine.PlayerPoints.ToString();
         }
 

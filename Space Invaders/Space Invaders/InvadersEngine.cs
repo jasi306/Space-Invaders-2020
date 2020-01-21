@@ -360,13 +360,13 @@ namespace Space_Invaders
 
             // line = "D:\\beep-01a.wav";
             shootS = new System.Windows.Media.MediaPlayer();
-            shootS.Open(new System.Uri("shoot.wav", UriKind.Relative));
+            shootS.Open(new System.Uri("..\\Sound\\shoot.wav", UriKind.Relative));
             explosionS = new System.Windows.Media.MediaPlayer();
-            explosionS.Open(new System.Uri("xplosion.wav", UriKind.Relative));
+            explosionS.Open(new System.Uri("..\\Sound\\xplosion.wav", UriKind.Relative));
             alienDeadthS = new System.Windows.Media.MediaPlayer();
-            alienDeadthS.Open(new System.Uri("invaderkilled.wav", UriKind.Relative));
+            alienDeadthS.Open(new System.Uri("..\\Sound\\invaderkilled.wav", UriKind.Relative));
             ufoLowPitchS = new System.Windows.Media.MediaPlayer();
-            ufoLowPitchS.Open(new System.Uri("ufo_lowpitch.wav", UriKind.Relative));
+            ufoLowPitchS.Open(new System.Uri("..\\Sound\\ufo_lowpitch.wav", UriKind.Relative));
 
             PlayerPoints = 0;
             timeOfGame = 0;
