@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,6 +32,9 @@ namespace Space_Invaders
         readonly string pathToPlayerImage = "..\\Images\\cannon.png";
         readonly string[,] pathToEnemyImage = { { "..\\Images\\enemy1_frame1.png", "..\\Images\\enemy1_frame2.png" }, { "..\\Images\\enemy2_frame1.png", "..\\Images\\enemy2_frame2.png" }, { "..\\Images\\enemy3_frame1.png", "..\\Images\\enemy3_frame2.png" } };
         readonly string pathToUfoImage = "..\\Images\\ufo.png";
+        readonly string pathToScoreBoard = "..\\ScoreBoard\\data.txt";
+
+
         const int typesCount = 3;
         const int animationFramesCount = 2;
 
@@ -119,7 +123,49 @@ namespace Space_Invaders
                 gameTimer.Enabled = false;
                 MessageBox.Show("You won!\nScore: " + invadersEngine.PlayerPoints.ToString() + "Points");
             }
+            if (invadersEngine.EndOfGame)
+            {
+                modifyScoreboard("noname", invadersEngine.PlayerPoints, (int)(invadersEngine.TimeOfGame / 60.0f));
+                MessageBox.Show(printScoreboard());
+            }
         }
+
+
+        static string printScoreboard()
+        {
+            string text;
+            var fileStream = new FileStream(@"..\\ScoreBoard\\data.txt", FileMode.Open, FileAccess.Read);
+            using (var streamReader = new StreamReader(fileStream, Encoding.UTF8))
+            {
+                text = streamReader.ReadToEnd();
+            }
+            return text;
+        }
+
+        static void modifyScoreboard(string name, int score, int time)
+        {
+            string record = name + " " + score.ToString() + " " + time.ToString();
+            string[] arrLine = File.ReadAllLines(@"..\\ScoreBoard\\data.txt", Encoding.UTF8);
+
+            for (int i = 0; i < 10; i++)
+            {
+                var h = arrLine[i].Split(' ').Last();
+                var t = int.Parse(h);
+                if (t == 0 || time < t)
+                {
+                    for (int j = i; j < 9; j++)
+                        arrLine[j] = arrLine[j + 1];
+                    record = (i + 1).ToString() + "." + record;
+                    arrLine[i] = record;
+
+
+                    File.WriteAllLines(@"..\\ScoreBoard\\data.txt", arrLine);
+                    break;
+                    //i = 10;
+                }
+            }
+        }
+
 
         private void Render()
         {

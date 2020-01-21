@@ -364,6 +364,26 @@ namespace Space_Invaders
         //int moveDirection; //1 right, -1 left
         MoveDirection moveDirection;
 
+        private bool endOfGame;
+        public bool EndOfGame
+        {
+            get => endOfGame;
+            private set
+            {
+                endOfGame = value;
+            }
+        }
+        private bool playerWon;
+        public bool PlayerWon
+        {
+            get => playerWon;
+            private set
+            {
+                playerWon = value;
+            }
+        }
+
+
         private int width, hight;
         private int uFOcols, uFOrows;
         public int UFOcols
@@ -417,8 +437,8 @@ namespace Space_Invaders
             //DEBBUG
             IfLastWasDebbugMessage = false;
             //DEBBUG
-
-
+            EndOfGame = false;
+            PlayerWon = false;
             // line = "D:\\beep-01a.wav";
             shootS = new System.Windows.Media.MediaPlayer();
             shootS.Open(new System.Uri("..\\Sound\\shoot.wav", UriKind.Relative));
@@ -470,6 +490,7 @@ namespace Space_Invaders
             //UFO
             //-------------
             SaucerAlive = false;
+ 
 
             Invaders = new Inveider[UFOcols, UFOrows];
             //UFOsRenderTop 
@@ -557,11 +578,10 @@ namespace Space_Invaders
         {
             if (TimeOfGame % 6 == 1)
             {
-                SaucerAliveS = new System.Windows.Media.MediaPlayer();
-                SaucerAliveS.Open(new System.Uri("..\\Sound\\edit.wav", UriKind.Relative));
+                
                 //https://twistedwave.com/online
-                //SaucerAliveS.MediaEnded += playSound(SaucerAliveS);
-                playSound(SaucerAliveS);
+                                        //SaucerAliveS.MediaEnded += playSound(SaucerAliveS);
+
             }
             timeOfGame++;
             //MessageBox.Show("1 "+timeOfGame.ToString());
@@ -576,6 +596,12 @@ namespace Space_Invaders
             //MessageBox.Show("3 "+timeOfGame.ToString());
             animateBullets();
             //MessageBox.Show("4 "+timeOfGame.ToString());
+            if(AliveCount==0 && !SaucerAlive)
+            {
+                EndOfGame = true;
+                PlayerWon = true;
+            }
+
         }
 
         void animateExplosion()
@@ -599,12 +625,14 @@ namespace Space_Invaders
             
             if (SaucerAlive)
             {
-                //SaucerAliveS.Play();
+         
                 Saucer.move(-10, 0);
-                if (Saucer.x - Saucer.Width < 0)
+                if (Saucer.x + Saucer.Width < 0)
                 {
+                    Saucer.alive = false;
                     saucerAlive = false;
                     Form1.Self.Controls.Remove(Saucer.sprite);
+                    SaucerAliveS.Stop();
                 }
             }
             else
@@ -624,6 +652,12 @@ namespace Space_Invaders
                 Saucer.sprite.Name = "toDraw";
                 SaucerAlive = true;
                 SaucerBorning = false;
+
+                SaucerAliveS = new System.Windows.Media.MediaPlayer();
+                SaucerAliveS.Open(new System.Uri("..\\Sound\\edit.wav", UriKind.Relative));
+                SaucerAliveS.Play();
+                //(SaucerAliveS);
+
                 //MessageBox.Show("UFO!");
             }
         }
@@ -660,12 +694,6 @@ namespace Space_Invaders
 
 
             }
-
-
-
-
-
-
 
 
 
@@ -746,6 +774,9 @@ namespace Space_Invaders
                     {
                         Saucer.alive = false;
                         Bullet.alive = false;
+                        SaucerAlive = false;
+                        SaucerAliveS.Stop();
+                        playSound(SaucerDeadthS);
                         Form1.Self.Controls.Remove(Bullet.sprite);
                         Form1.Self.Controls.Remove(Saucer.sprite);
                         explosions.Add(new Explosion(Saucer.x, Saucer.y, expX, expY));
@@ -803,7 +834,6 @@ namespace Space_Invaders
                 {
                     if (shield[i].colisionWith(Bullet))
                     {
-
                         shield[i].colisionInside(Bullet, explosions, expX, expY);
                     }
                 }
@@ -814,6 +844,7 @@ namespace Space_Invaders
                         if (Bullet.colisionWith(player1))
                         {
                             player1.alive = false;
+                            endOfGame = true;
                             Bullet.alive = false;
                             Form1.Self.Controls.Remove(Bullet.sprite);
                             playSound(explosionS);
@@ -823,6 +854,7 @@ namespace Space_Invaders
                     if (Bullet.colisionWith(player2))
                     {
                         player1.alive = false;
+                        endOfGame = true;
                         Bullet.alive = false;
                         Form1.Self.Controls.Remove(Bullet.sprite);
                         playSound(explosionS);
@@ -887,6 +919,7 @@ namespace Space_Invaders
                         if (Invaders[x, y].y - Invaders[x, y].Hight < player1.Hight + player1.y)
                         {
                             player1.alive = false;
+                            endOfGame = true;
                             playSound(explosionS);
                         }
 
