@@ -80,14 +80,17 @@ namespace Space_Invaders
 
         void SpawnShields(Shield[] shields, string pictureBoxName)
         {
-            var size= new Size((int)(invadersEngine.shieldScale * Width), (int)(invadersEngine.shieldScale * Height));
+            //var size= new Size((int)(invadersEngine.shieldScale * Width), (int)(invadersEngine.shieldScale * Height));
+            var size = new Size((int)(invadersEngine.shield[0].elements[0,0].Width), (int)(invadersEngine.shield[0].elements[0, 0].Hight));
             var img = shieldPieceImage;
             foreach (Shield shield in shields)
             {
-                foreach(FO shieldPiece in shield.elements)
+                foreach (FO shieldPiece in shield.elements)
                 {
+                    if (shieldPiece.alive) { 
                     AssignValues(shieldPiece.sprite, (int)shieldPiece.x, (int)shieldPiece.y, size, img, pictureBoxName);
                     Controls.Add(shieldPiece.sprite);
+                }
                 }
             }
 
@@ -233,7 +236,7 @@ namespace Space_Invaders
             if (invadersEngine.TwoPlayersMode)
                 SpawnSingleObject(invadersEngine.player2, playerImage, "player");
             SpawnEnemies(invadersEngine.Invaders, "aliveEnemy");
-            //SpawnShields(invadersEngine.shield,"shieldPiece");
+            SpawnShields(invadersEngine.shield,"shieldPiece");
             
             gameTimer.Interval = ConvertFPStoMsPerFrame(FPS);
             label1.Text = "Score: " + invadersEngine.PlayerPoints.ToString();

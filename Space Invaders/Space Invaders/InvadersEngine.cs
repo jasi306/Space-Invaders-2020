@@ -11,6 +11,9 @@ using System.Windows.Input; //obsluga klawatury
 
 using System.Windows.Forms;  // tylko MessageBox
 using System.Drawing;
+using System.Windows.Media;
+using System.Threading;
+using System.Windows.Media.Animation;
 
 namespace Space_Invaders
 {
@@ -105,16 +108,19 @@ namespace Space_Invaders
             switch (type)
             {
                 case 0:
-                    points = 100;
+                    points = 10;
                     break;
                 case 1:
-                    points = 200;
+                    points = 20;
                     break;
                 case 2:
-                    points = 300;
+                    points = 30;
+                    break;
+                case 3:
+                    points = 50;
                     break;
                 default:
-                    MessageBox.Show("Error!");  //---------<<<<<<< niefachowo?
+                    MessageBox.Show("Error! nieistniejacy typ obcego");  //---------<<<<<<< niefachowo?
                     break;
             }
         }
@@ -176,7 +182,9 @@ namespace Space_Invaders
 
         public Shield(float x,float y,float width,float hight) : base(x,y,width,hight)
         {
-           // this.width = width;
+            // this.width = width;
+            float elementsWidth = width / cols;
+            float elementsHight = hight / rows;
             this.x = x;
             this.y = y;
             elements = new FO[cols, rows];
@@ -184,7 +192,7 @@ namespace Space_Invaders
             {
                 for (int j = 0; j < cols; ++j)
                 {
-                    elements[j,i] = new FO(j + width * (j-7), i + hight * (i-7), width, hight);
+                    elements[j,i] = new FO(x+j + elementsWidth * (j-7),y+ i + elementsHight * (i-7), elementsWidth, elementsHight);
                     //for 11x13
                      if (j + y < 2) elements[j, i].alive = false;  //lewy góry róg.
                      if ((cols - j - 1) + y < 2) elements[j, i].alive = false;  //prawy góry róg.
@@ -215,8 +223,9 @@ namespace Space_Invaders
                     {
                         destroy(j, i);
                         bullet.alive = false;
+                        Form1.Self.Controls.Remove(bullet.sprite);
                         ToUpdate = true;
-                        print_message();
+                        //print_message();
                     }
                 }
             }
@@ -266,7 +275,8 @@ namespace Space_Invaders
         System.Windows.Media.MediaPlayer shootS;
         System.Windows.Media.MediaPlayer explosionS;
         System.Windows.Media.MediaPlayer alienDeadthS;
-        System.Windows.Media.MediaPlayer ufoLowPitchS;
+        System.Windows.Media.MediaPlayer SaucerDeadthS;
+        System.Windows.Media.MediaPlayer SaucerAliveS;
 
 
         public Shield[] shield;
@@ -290,13 +300,13 @@ namespace Space_Invaders
         private const float ShildsRenderLine = 0.2f;
         private const float PlayerRenderLine = 0.12f;
 
-        public readonly float shieldScale = 0.01f;
+        public readonly float shieldScale = 0.1f;
 
         private const float moveConst = 0.02f;
 
         private int cooldown;
         //
-        private const float BulletSpeed=5.5f;
+        private const float BulletSpeed=8.5f;
 
         private float moveConstInPxX;
         private float moveConstInPxY;
@@ -342,6 +352,7 @@ namespace Space_Invaders
         public Inveider[,] Invaders;
         public Inveider Saucer;
 
+        private bool SaucerBorning = false;
         private bool saucerAlive;
         public bool SaucerAlive
         {
@@ -382,8 +393,10 @@ namespace Space_Invaders
             explosionS.Open(new System.Uri("..\\Sound\\xplosion.wav", UriKind.Relative));
             alienDeadthS = new System.Windows.Media.MediaPlayer();
             alienDeadthS.Open(new System.Uri("..\\Sound\\invaderkilled.wav", UriKind.Relative));
-            ufoLowPitchS = new System.Windows.Media.MediaPlayer();
-            ufoLowPitchS.Open(new System.Uri("..\\Sound\\ufo_lowpitch.wav", UriKind.Relative));
+            SaucerDeadthS = new System.Windows.Media.MediaPlayer();
+            SaucerDeadthS.Open(new System.Uri("..\\Sound\\ufo_lowpitch.wav", UriKind.Relative));
+            SaucerAliveS = new System.Windows.Media.MediaPlayer();
+            SaucerAliveS.Open(new System.Uri("..\\Sound\\ufo_highpitch.wavoff", UriKind.Relative));
 
             PlayerPoints = 0;
             timeOfGame = 0;
@@ -415,9 +428,11 @@ namespace Space_Invaders
             shield = new Shield[4];
             for (int i = 0; i < 4; ++i)
             {
-                shield[i] = new Shield(i * width / 4 + width / 2, ShildsRenderLine*width, shieldScale * width, shieldScale * width); //zostaje przy kwadaratach
+                shield[i] = new Shield(i * width / 4 + width / 8, ShildsRenderLine*width, shieldScale * hight, shieldScale * width); //zostaje przy kwadaratach
                 //MessageBox.Show("" + (i * width / 4 + width / 2) + " " + (ShildsRenderLine* width) + " " + (shieldScale * width) + " " + (shieldScale * width));
             }
+
+            //shield[0] = new Shield( width / 2 , hight/2 , 10, 10);
             //UFO
             //-------------
             SaucerAlive = false;
@@ -453,12 +468,45 @@ namespace Space_Invaders
             MainLoop.Elapsed += OnTimedEvent;
             MainLoop.AutoReset = true;
             MainLoop.Enabled = true;*/
+
+
+
+            /*
+            var timeLine = new MediaTimeline(new Uri("..\\Sound\\ufo_highpitch.wav", UriKind.Relative));
+            timeLine.RepeatBehavior = RepeatBehavior.Forever;
+            var mediaPlayer = new MediaPlayer();
+            mediaPlayer.Clock = timeLine.CreateClock();
+            mediaPlayer.Clock.Controller.Begin();*/
+
+            
+
+
+            TimeSpan duration = new TimeSpan();
+            //await PlayAudioAsync(duration, ctsPlay.Token);          
         }
+        private CancellationTokenSource ctsPlay;
+        public async Task PlayAudioAsync(TimeSpan duration, CancellationToken cancellationToken)
+        {
+            var timeLine = new MediaTimeline(new Uri("..\\Sound\\ufo_highpitch.wav", UriKind.Relative));
+            timeLine.RepeatBehavior = RepeatBehavior.Forever;
+            var mediaPlayer = new MediaPlayer();
+            mediaPlayer.Clock = timeLine.CreateClock();
+            mediaPlayer.Clock.Controller.Begin();
+            try
+            {
+                await Task.Delay(duration, cancellationToken);
+            }
+            finally
+            {
+                mediaPlayer.Clock.Controller.Stop();
+            }
+        }
+
+
 
         public void reset()
         {
             init( width,  hight,  UFOcols,  UFOrows, TwoPlayersMode);
-
         }
 
 
@@ -476,22 +524,47 @@ namespace Space_Invaders
             //MessageBox.Show("2 "+timeOfGame.ToString());
             UfoTryToAttack();
 
-            if (timeOfGame > AliveCount * 20 && !SaucerAlive) tryToSpawnSaucer();
+            SaucerOperations();
+
             keyboard();
             //MessageBox.Show("3 "+timeOfGame.ToString());
             animateBullets();
             //MessageBox.Show("4 "+timeOfGame.ToString());
         }
-
+        void SaucerOperations()
+        {
+            /*
+            if (TimeOfGame % 15 == 1)
+            {
+                SaucerAliveS = new System.Windows.Media.MediaPlayer();
+                SaucerAliveS.Open(new System.Uri("..\\Sound\\ufo_highpitch.wav", UriKind.Relative));
+               
+                //SaucerAliveS.MediaEnded += playSound(SaucerAliveS);
+                playSound(SaucerAliveS);
+            }*/
+            if (SaucerAlive) {
+                //SaucerAliveS.Play();
+                Saucer.move(-10, 0);
+                if (Saucer.x - Saucer.Width < 0)
+                    saucerAlive = false;
+            }
+            else {
+               
+                if (timeOfGame > AliveCount * 0 && !SaucerAlive)
+                    tryToSpawnSaucer();
+            }
+        }
         void tryToSpawnSaucer()
         {
             Random r = new Random();
-            if (r.Next() % 500 == 7 )
+            if (r.Next() % 1 == 0 && SaucerBorning == false)
             {
+                SaucerBorning = true;
+                Saucer = new Inveider(width, hight * 0.9f, 40, 10, 3);
                 SaucerAlive = true;
-                Saucer = new Inveider(width, hight * 0.9f, 40, 10, 4);
+                SaucerBorning = false;
 
-                MessageBox.Show("UFO!");
+                //MessageBox.Show("UFO!");
             }
         }
 
@@ -580,7 +653,6 @@ namespace Space_Invaders
         {
             sound.Stop();
             sound.Play();
-            
         }
 
         public void fireAlien(FO shooter)
@@ -593,8 +665,6 @@ namespace Space_Invaders
 
         public void firePlayer(Player player)
         {
-
-            
             if (timeOfGame - player.LastShot < cooldown) return;
             playSound(shootS);
             Bullet bullet = new Bullet(player.x, player.y + player.Hight/2, bulletWidth, bulletHeight,1);
@@ -730,6 +800,8 @@ namespace Space_Invaders
 
         private void MoveUfoDown()
         {
+           
+
             for (int x = 0; x < UFOcols; ++x) //kolumna
                 for (int y = 0; y < UFOrows; ++y) //wiersz
                     Invaders[x, y].move(0, -moveConstInPxY);
