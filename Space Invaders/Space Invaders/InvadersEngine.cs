@@ -34,7 +34,7 @@ namespace Space_Invaders
 
         public float x, y;  // private --------------debbug-----------------
         public bool alive;
-        private float width, hight;
+        public float width, hight;
         public float Width
         {
             get
@@ -203,12 +203,13 @@ namespace Space_Invaders
                 {
                     elements[j,i] = new FO(x+j + elementsWidth * (j-7),y+ i + elementsHight * (i-7), elementsWidth, elementsHight);
                     //for 11x13
-                     if (j + y < 2) elements[j, i].alive = false;  //lewy góry róg.
-                     if ((cols - j - 1) + y < 2) elements[j, i].alive = false;  //prawy góry róg.
+                     if (j + rows-i < 3) elements[j, i].alive = false;  //lewy góry róg.
+                     if ((cols - j - 1) + rows-i < 3) elements[j, i].alive = false;  //prawy góry róg.
 
-                     if (Math.Abs(cols/2 - j) + (rows-i-1) < 6 && (rows-i - 1) < 3 && Math.Abs(cols / 2 - j) < 5) elements[j, i].alive = false;  //srodek
-                 
-                 //for 22x26
+                     if (Math.Abs(cols/2 - j) + (i-1) < 6 && (i - 1) < 3 && Math.Abs(cols / 2 - j) < 5) elements[j, i].alive = false;  //srodek
+
+                    
+                    //for 22x26
                     /*if (j + i < 4) elements[j, i].alive = false;  //lewy góry róg.
                     if ((cols - j - 1) + i < 4) elements[j, i].alive = false;  //prawy góry róg.
 
@@ -221,12 +222,12 @@ namespace Space_Invaders
             //print_message(); //test
 
             //zwiekszenie hitboxa
-            /*
-            width += elementsWidth;
-            hight += elementsHight*4;
-            this.x += elementsWidth/2;
-            this.y -= elementsHight*2;
-        */
+            
+            this.width += elementsWidth*3;
+            this.hight += elementsHight*3;
+            //this.x -= elementsWidth*2;
+            //this.y -= elementsHight*2;
+        
         }
 
         public void colisionInside(FO bullet,List<Explosion> exp,float expX,float expY)
