@@ -57,7 +57,7 @@ namespace Space_Invaders
                 hight = value;
             }
         }
-        public FO(float x, float y,float width,float hight)
+        public FO(float x, float y, float width, float hight)
         {
             this.width = width;
             this.hight = hight;
@@ -85,7 +85,7 @@ namespace Space_Invaders
             float fooLeft = fo.x + fo.width / 2;
             float fooRight = fo.x - fo.width / 2;
             float myLeft = x + width / 2;
-            float myRight = x - width/2;
+            float myRight = x - width / 2;
 
             if (fooBottom < myTop && fooTop > myBottom &&
                 fooRight < myLeft && fooLeft > myRight)
@@ -110,7 +110,7 @@ namespace Space_Invaders
 
         public int type;
         public int points;
-        public Inveider(float x, float y, float width, float hight,int type) : base(x, y, width, hight)
+        public Inveider(float x, float y, float width, float hight, int type) : base(x, y, width, hight)
         {
             this.type = type;
             switch (type)
@@ -125,7 +125,7 @@ namespace Space_Invaders
                     points = 30;
                     break;
                 case 3:
-                    points = 50;
+                    points = 100;
                     break;
                 default:
                     MessageBox.Show("Error! nieistniejacy typ obcego");  //---------<<<<<<< niefachowo?
@@ -147,7 +147,7 @@ namespace Space_Invaders
         public long LastShot;
         public int boardWidth;
 
-        public Player(float x, float y, float width, float hight,int boardWidth) : base(x, y, width, hight)
+        public Player(float x, float y, float width, float hight, int boardWidth) : base(x, y, width, hight)
         {
             LastShot = -10000;
             this.boardWidth = boardWidth;
@@ -162,33 +162,33 @@ namespace Space_Invaders
                 if (this.x + Width > boardWidth) return;
             this.x += x;
         }
-        public void move(float x,Player foo)
+        public void move(float x, Player foo)
         {
-            float myLeft  = this.x - Width/2;
-            float myRight = this.x + Width/2;
-            float hisLeft = foo.x - foo.Width/2;
-            float hisRight= foo.x + foo.Width/2;
+            float myLeft = this.x - Width / 2;
+            float myRight = this.x + Width / 2;
+            float hisLeft = foo.x - foo.Width / 2;
+            float hisRight = foo.x + foo.Width / 2;
             //MessageBox.Show("myLeft" + myLeft + "myRight" + myRight + "hisLeft" + hisLeft + "hisRight" + hisRight);
             if (x < 0)
             {
-                if (this.x - Width / 2 < 0 ||  ((this.x > foo.x) && myLeft < hisRight ) ) return; //left
+                if (this.x - Width / 2 < 0 || ((this.x > foo.x) && myLeft < hisRight)) return; //left
             }
             else
-                if (this.x + Width > boardWidth || ((this.x < foo.x) && myRight > hisLeft) ) return; //right
+                if (this.x + Width > boardWidth || ((this.x < foo.x) && myRight > hisLeft)) return; //right
             this.x += x;
         }
     }
 
     class Shield : FO
     {
-        
+
         int cols = 13;
         int rows = 11;
         public FO[,] elements;
 
         public bool ToUpdate = false;
 
-        public Shield(float x,float y,float width,float hight) : base(x,y,width,hight)
+        public Shield(float x, float y, float width, float hight) : base(x, y, width, hight)
         {
             // this.width = width;
             float elementsWidth = width / cols;
@@ -197,16 +197,16 @@ namespace Space_Invaders
             this.x = x;
             this.y = y;
             elements = new FO[cols, rows];
-            for (int i = 0; i < rows; ++i) 
+            for (int i = 0; i < rows; ++i)
             {
                 for (int j = 0; j < cols; ++j)
                 {
-                    elements[j,i] = new FO(x+j + elementsWidth * (j-7),y+ i + elementsHight * (i-5), elementsWidth, elementsHight);
+                    elements[j,i] = new FO(x+j + elementsWidth * (j-7),y+ i + elementsHight * (i-7), elementsWidth, elementsHight);
                     //for 11x13
-                     //if (j + y < 2) elements[j, i].alive = false;  //lewy góry róg.
-                     //if ((cols - j - 1) + y < 2) elements[j, i].alive = false;  //prawy góry róg.
+                     if (j + y < 2) elements[j, i].alive = false;  //lewy góry róg.
+                     if ((cols - j - 1) + y < 2) elements[j, i].alive = false;  //prawy góry róg.
 
-                     //if (Math.Abs(cols/2 - j) + (rows-i-1) < 6 && (rows-i - 1) < 3 && Math.Abs(cols / 2 - j) < 5) elements[j, i].alive = false;  //srodek
+                     if (Math.Abs(cols/2 - j) + (rows-i-1) < 6 && (rows-i - 1) < 3 && Math.Abs(cols / 2 - j) < 5) elements[j, i].alive = false;  //srodek
                  
                  //for 22x26
                     /*if (j + i < 4) elements[j, i].alive = false;  //lewy góry róg.
@@ -236,7 +236,7 @@ namespace Space_Invaders
             {
                 for (int j = 0; j < cols; ++j)
                 {
-                    if (bullet.colisionWith(elements[j,i]))
+                    if (bullet.colisionWith(elements[j, i]))
                     {
                         destroy(j, i);
                         bullet.alive = false;
@@ -257,7 +257,7 @@ namespace Space_Invaders
             {
                 for (int x = 0; x < cols; ++x)
                 {
-                    if(elements[x, y].alive)
+                    if (elements[x, y].alive)
                         outp += "1";
                     else
                         outp += "0";
@@ -267,7 +267,7 @@ namespace Space_Invaders
             MessageBox.Show(outp);
         }
 
-        public void destroy(int x, int y,int power = 6) //na pewno niszczy wskazany element. Eksplozja roznosi sie po okolicznych elementach
+        public void destroy(int x, int y, int power = 6) //na pewno niszczy wskazany element. Eksplozja roznosi sie po okolicznych elementach
         {
             if (x < 0 || y < 0 || x > cols - 1 || y > rows - 1) return;  //wyjscie jesli zle wspolrzedne
             if (elements[x, y].alive == false) return;// wyjscie jesli juz martwy, martwe nie przewodza eksplozji
@@ -277,7 +277,7 @@ namespace Space_Invaders
 
             elements[x, y].alive = false;
             for (int i = -1; i <= 1; ++i) for (int j = -1; j <= 1; ++j)
-                    if (r.Next() % 6+power> 4)  destroy(x+i, y+j, power - 3 + j ); //Do zabawy z wartosciami
+                    if (r.Next() % 6 + power > 4) destroy(x + i, y + j, power - 3 + j); //Do zabawy z wartosciami
         }                                                                          //malo satysfakcjonujacy efekt
     };
 
@@ -329,7 +329,16 @@ namespace Space_Invaders
 
         private int cooldown;
         //
-        private const float BulletSpeed=8.5f;
+        private const float BulletSpeed = 8.5f;
+
+        private const int playerWidth = 30;
+        private const int playerHeight = 10;
+
+        private const int invaderWidth = 30;
+        private const int invaderHeight = 20;
+
+        public readonly int saucerWidth = 40;
+        public readonly int saucerHeight = 20;
 
         private float moveConstInPxX;
         private float moveConstInPxY;
@@ -350,6 +359,7 @@ namespace Space_Invaders
 
         public readonly int bulletWidth = 10;
         public readonly int bulletHeight = 10;
+
 
         //int moveDirection; //1 right, -1 left
         MoveDirection moveDirection;
@@ -397,9 +407,9 @@ namespace Space_Invaders
         }
 
 
-        public InvadersEngine(int width, int hight, int UFOcols, int UFOrows, bool  TwoPlayersMode)
+        public InvadersEngine(int width, int hight, int UFOcols, int UFOrows, bool TwoPlayersMode)
         {
-            init( width,  hight,  UFOcols,  UFOrows, TwoPlayersMode);
+            init(width, hight, UFOcols, UFOrows, TwoPlayersMode);
         }
 
         public void init(int width, int hight, int UFOcols, int UFOrows, bool TwoPlayersMode)
@@ -442,9 +452,9 @@ namespace Space_Invaders
 
             //Gracz
             //-------------
-            player1 = new Player( (TwoPlayersMode)?(width / 3): (width / 2), hight * PlayerRenderLine, 30, 12,width);
+            player1 = new Player((TwoPlayersMode) ? (width / 3) : (width / 2), hight * PlayerRenderLine, playerWidth, playerHeight, width);
 
-            if(TwoPlayersMode) player2 = new Player( (width / 3)*2 , hight * PlayerRenderLine, 30, 12,width); ;
+            if (TwoPlayersMode) player2 = new Player((width / 3) * 2, hight * PlayerRenderLine, playerWidth, playerHeight, width); ;
             cooldown = (TwoPlayersMode) ? 60 : 40;
 
             //Tarcze
@@ -452,7 +462,7 @@ namespace Space_Invaders
             shield = new Shield[4];
             for (int i = 0; i < 4; ++i)
             {
-                shield[i] = new Shield(i * width / 4 + width / 8, ShildsRenderLine*width, shieldScale * hight, shieldScale * width); //zostaje przy kwadaratach
+                shield[i] = new Shield(i * width / 4 + width / 8, ShildsRenderLine * width, shieldScale * hight, shieldScale * width); //zostaje przy kwadaratach
                 //MessageBox.Show("" + (i * width / 4 + width / 2) + " " + (ShildsRenderLine* width) + " " + (shieldScale * width) + " " + (shieldScale * width));
             }
 
@@ -464,12 +474,12 @@ namespace Space_Invaders
             Invaders = new Inveider[UFOcols, UFOrows];
             //UFOsRenderTop 
             float tempXstep = (width - (UFOsStartXOffset * width)) / UFOcols;
-            float tempYstep = (hight - ( ((1-UFOsRenderBottom) + (1 - UFOsRenderTop)) * hight)) / UFOrows;
+            float tempYstep = (hight - (((1 - UFOsRenderBottom) + (1 - UFOsRenderTop)) * hight)) / UFOrows;
 
             for (int x = 0; x < UFOcols; ++x)
                 for (int y = 0; y < UFOrows; ++y)
                 {
-                    Invaders[x, y] = new Inveider((x + 0.5f) * tempXstep, -(1-UFOsRenderTop) * hight + hight - ((y + 0.5f) * tempYstep), 30, 20, (y < 1) ? 2 : (y < 3) ? 1 : 0);   //!!!!!!!!!!poprawic warunki!!!!!!!!!!!
+                    Invaders[x, y] = new Inveider((x + 0.5f) * tempXstep, -(1 - UFOsRenderTop) * hight + hight - ((y + 0.5f) * tempYstep), invaderWidth, invaderHeight, (y < 1) ? 2 : (y < 3) ? 1 : 0);   //!!!!!!!!!!poprawic warunki!!!!!!!!!!!
                     Invaders[x, y].debbugMessage = x.ToString() + " " + y.ToString();
                     //!!!!!!!!!!!!! poprawic !!!!!!!!!!!!!!
                 }
@@ -509,7 +519,7 @@ namespace Space_Invaders
 
 
             TimeSpan duration = new TimeSpan();
-            //await PlayAudioAsync(duration, ctsPlay.Token);          
+             //PlayAudioAsync(duration, ctsPlay.Token);          
         }
         /*private CancellationTokenSource ctsPlay;
         public async Task PlayAudioAsync(TimeSpan duration, CancellationToken cancellationToken)
@@ -533,18 +543,26 @@ namespace Space_Invaders
 
         public void reset()
         {
-            init( width,  hight,  UFOcols,  UFOrows, TwoPlayersMode);
+            init(width, hight, UFOcols, UFOrows, TwoPlayersMode);
         }
 
 
-        public Tuple<int,int> GetSize() //funkcja zwracajaca wymiary planszy
+        public Tuple<int, int> GetSize() //funkcja zwracajaca wymiary planszy
         {
-            var boardSize=new Tuple<int,int>(this.width,this.hight);
+            var boardSize = new Tuple<int, int>(this.width, this.hight);
             return boardSize;
         }
 
         public void FrameCalcs(Object myObject, EventArgs myEventArgs) //arg wymagane dla EventHandler
         {
+            if (TimeOfGame % 6 == 1)
+            {
+                SaucerAliveS = new System.Windows.Media.MediaPlayer();
+                SaucerAliveS.Open(new System.Uri("..\\Sound\\edit.wav", UriKind.Relative));
+                //https://twistedwave.com/online
+                //SaucerAliveS.MediaEnded += playSound(SaucerAliveS);
+                playSound(SaucerAliveS);
+            }
             timeOfGame++;
             //MessageBox.Show("1 "+timeOfGame.ToString());
             MoveNextUfo();
@@ -577,23 +595,21 @@ namespace Space_Invaders
 
         void SaucerOperations()
         {
-            /*
-            if (TimeOfGame % 15 == 1)
+            
+            
+            if (SaucerAlive)
             {
-                SaucerAliveS = new System.Windows.Media.MediaPlayer();
-                SaucerAliveS.Open(new System.Uri("..\\Sound\\ufo_highpitch.wav", UriKind.Relative));
-               
-                //SaucerAliveS.MediaEnded += playSound(SaucerAliveS);
-                playSound(SaucerAliveS);
-            }*/
-            if (SaucerAlive) {
                 //SaucerAliveS.Play();
                 Saucer.move(-10, 0);
                 if (Saucer.x - Saucer.Width < 0)
+                {
                     saucerAlive = false;
+                    Form1.Self.Controls.Remove(Saucer.sprite);
+                }
             }
-            else {
-               
+            else
+            {
+
                 if (timeOfGame > AliveCount * 0 && !SaucerAlive)
                     tryToSpawnSaucer();
             }
@@ -604,10 +620,10 @@ namespace Space_Invaders
             if (r.Next() % 1 == 0 && SaucerBorning == false)
             {
                 SaucerBorning = true;
-                Saucer = new Inveider(width, hight * 0.9f, 40, 10, 3);
+                Saucer = new Inveider(width, hight * 0.9f, saucerWidth, saucerHeight, 3);
+                Saucer.sprite.Name = "toDraw";
                 SaucerAlive = true;
                 SaucerBorning = false;
-
                 //MessageBox.Show("UFO!");
             }
         }
@@ -627,37 +643,37 @@ namespace Space_Invaders
             else
             {
                 if (Keyboard.IsKeyDown(Key.A))
-                    player1.move(-4,player2);
+                    player1.move(-4, player2);
                 if (Keyboard.IsKeyDown(Key.Left))
-                    player2.move(-4,player1);
+                    player2.move(-4, player1);
 
                 if (Keyboard.IsKeyDown(Key.D))
                     player1.move(4, player2);
                 if (Keyboard.IsKeyDown(Key.Right))
-                    player2.move(4,player1);
+                    player2.move(4, player1);
 
-                if(Keyboard.IsKeyDown(Key.W) || Keyboard.IsKeyDown(Key.Space))
+                if (Keyboard.IsKeyDown(Key.W) || Keyboard.IsKeyDown(Key.Space))
                     firePlayer(player1);
 
-                if(Keyboard.IsKeyDown(Key.Up) || Keyboard.IsKeyDown(Key.Enter))
+                if (Keyboard.IsKeyDown(Key.Up) || Keyboard.IsKeyDown(Key.Enter))
                     firePlayer(player2);
-                
+
 
             }
 
-                
 
 
 
-                
 
-         
+
+
+
 
             if (Keyboard.IsKeyDown(Key.Home))
             {
                 bool _temp = IfLastWasDebbugMessage;
                 IfLastWasDebbugMessage = true;
-                
+
                 if (!_temp)
                 {
                     MessageBox.Show(explosions.Count.ToString());
@@ -681,18 +697,18 @@ namespace Space_Invaders
                 int rand = r.Next() % UFOcols;
                 //rand = 2;
                 int y;
-                for(y = UFOrows - 1; y > 0; --y)  //error y=4
+                for (y = UFOrows - 1; y > 0; --y)  //error y=4
                 {
-                    if (Invaders[rand,y].alive) break;
+                    if (Invaders[rand, y].alive) break;
                 }
                 if (!Invaders[rand, y].alive) return;
                 //MessageBox.Show("fire! kolumna:"+ rand.ToString());
-                fireAlien(Invaders[rand,y]);
+                fireAlien(Invaders[rand, y]);
 
             }
-            
+
         }
-        
+
         void playSound(System.Windows.Media.MediaPlayer sound)
         {
             sound.Stop();
@@ -701,7 +717,7 @@ namespace Space_Invaders
 
         public void fireAlien(FO shooter)
         {
-            Bullet bullet = new Bullet(shooter.x, shooter.y - 10, bulletWidth, bulletHeight,1);
+            Bullet bullet = new Bullet(shooter.x, shooter.y - 10, bulletWidth, bulletHeight, 1);
             bullet.sprite.Name = "toDraw";
             enamyBullets.Add(bullet);
         }
@@ -711,7 +727,7 @@ namespace Space_Invaders
         {
             if (timeOfGame - player.LastShot < cooldown) return;
             playSound(shootS);
-            Bullet bullet = new Bullet(player.x, player.y + player.Hight/2, bulletWidth, bulletHeight,1);
+            Bullet bullet = new Bullet(player.x, player.y + player.Hight / 2, bulletWidth, bulletHeight, 1);
             bullet.sprite.Name = "toDraw";
             playerBullets.Add(bullet);
 
@@ -743,8 +759,8 @@ namespace Space_Invaders
                         Form1.Self.Controls.Remove(Bullet.sprite);
                         //if (--Bullet2.hp < 0)
                         //{
-                           Bullet2.alive = false;
-                           Form1.Self.Controls.Remove(Bullet2.sprite);
+                        Bullet2.alive = false;
+                        Form1.Self.Controls.Remove(Bullet2.sprite);
                         //}
                     }
                 });
@@ -792,8 +808,8 @@ namespace Space_Invaders
                     }
                 }
 
-                
-                if (Bullet.y < 0- Bullet.Hight) Bullet.alive = false;
+
+                if (Bullet.y < 0 - Bullet.Hight) Bullet.alive = false;
                 for (int i = 0; i < UFOcols; ++i) for (int j = 0; j < UFOcols; ++j)
                         if (Bullet.colisionWith(player1))
                         {
@@ -802,15 +818,16 @@ namespace Space_Invaders
                             Form1.Self.Controls.Remove(Bullet.sprite);
                             playSound(explosionS);
                         }
-                        if( TwoPlayersMode)
-                        {
-                            if (Bullet.colisionWith(player2)){
-                                player1.alive = false;
-                                Bullet.alive = false;
-                                Form1.Self.Controls.Remove(Bullet.sprite);
-                                playSound(explosionS);
-                            }
-                        }
+                if (TwoPlayersMode)
+                {
+                    if (Bullet.colisionWith(player2))
+                    {
+                        player1.alive = false;
+                        Bullet.alive = false;
+                        Form1.Self.Controls.Remove(Bullet.sprite);
+                        playSound(explosionS);
+                    }
+                }
             });
             enamyBullets.RemoveAll(notAlive);
             playerBullets.RemoveAll(notAlive);
@@ -820,14 +837,15 @@ namespace Space_Invaders
 
         private void MoveNextUfo()
         {
-            if (AliveCount==0) return;
+            if (AliveCount == 0) return;
             int x, y;
-            do {
+            do
+            {
                 //przesun
                 lastMoved++;
 
                 //czy juz ostatnie?
-                if (lastMoved >= UFOrows * UFOcols )
+                if (lastMoved >= UFOrows * UFOcols)
                 {
                     if (ifUfoMustTurn())
                     {
@@ -836,15 +854,15 @@ namespace Space_Invaders
                     }
                     lastMoved = 0;
                 }
-  
+
 
                 x = lastMoved / UFOcols;
-                y = ((lastMoved- x* UFOcols) % UFOrows);
+                y = ((lastMoved - x * UFOcols) % UFOrows);
 
                 // MessageBox.Show("x = " + x.ToString() + " y = " + y.ToString() + " LM = " + lastMoved.ToString());
-            } while (!Invaders[UFOcols - y-1, UFOrows -1 -x].alive);
+            } while (!Invaders[UFOcols - y - 1, UFOrows - 1 - x].alive);
 
-            Invaders[UFOcols - y-1, UFOrows -1 - x].move((moveDirection == MoveDirection.Right) ? moveConstInPxX : -moveConstInPxX , 0);
+            Invaders[UFOcols - y - 1, UFOrows - 1 - x].move((moveDirection == MoveDirection.Right) ? moveConstInPxX : -moveConstInPxX, 0);
             Invaders[UFOcols - y - 1, UFOrows - 1 - x].spireteNum = 1 - Invaders[UFOcols - y - 1, UFOrows - 1 - x].spireteNum;
             //MessageBox.Show(Invaders[UFOcols - y - 1, UFOrows - 1 - x].spireteNum.ToString());
         }
@@ -857,7 +875,7 @@ namespace Space_Invaders
 
         private void MoveUfoDown()
         {
-           
+
 
             for (int x = 0; x < UFOcols; ++x) //kolumna
                 for (int y = 0; y < UFOrows; ++y) //wiersz
@@ -874,7 +892,7 @@ namespace Space_Invaders
 
         }
 
-        
+
 
         private bool ifUfoMustTurn()
         {
@@ -904,7 +922,7 @@ namespace Space_Invaders
 
             for (int x = 0; x < UFOcols; ++x) //kolumna
                 for (int y = 0; y < UFOrows; ++y) //wiersz
-                    if(Invaders[x, y].alive)
+                    if (Invaders[x, y].alive)
                         if (Invaders[x, y].x + Invaders[x, y].Width * 2 > width || Invaders[x, y].x - Invaders[x, y].Width * 2 < 0)
                             return true;
             return false;
