@@ -185,6 +185,7 @@ namespace Space_Invaders
             // this.width = width;
             float elementsWidth = width / cols;
             float elementsHight = hight / rows;
+            
             this.x = x;
             this.y = y;
             elements = new FO[cols, rows];
@@ -192,12 +193,12 @@ namespace Space_Invaders
             {
                 for (int j = 0; j < cols; ++j)
                 {
-                    elements[j,i] = new FO(x+j + elementsWidth * (j-7),y+ i + elementsHight * (i-7), elementsWidth, elementsHight);
+                    elements[j,i] = new FO(x+j + elementsWidth * (j-7),y+ i + elementsHight * (i-5), elementsWidth, elementsHight);
                     //for 11x13
-                     if (j + y < 2) elements[j, i].alive = false;  //lewy góry róg.
-                     if ((cols - j - 1) + y < 2) elements[j, i].alive = false;  //prawy góry róg.
+                     //if (j + y < 2) elements[j, i].alive = false;  //lewy góry róg.
+                     //if ((cols - j - 1) + y < 2) elements[j, i].alive = false;  //prawy góry róg.
 
-                     if (Math.Abs(cols/2 - j) + (rows-i-1) < 6 && (rows-i - 1) < 3 && Math.Abs(cols / 2 - j) < 5) elements[j, i].alive = false;  //srodek
+                     //if (Math.Abs(cols/2 - j) + (rows-i-1) < 6 && (rows-i - 1) < 3 && Math.Abs(cols / 2 - j) < 5) elements[j, i].alive = false;  //srodek
                  
                  //for 22x26
                     /*if (j + i < 4) elements[j, i].alive = false;  //lewy góry róg.
@@ -207,9 +208,17 @@ namespace Space_Invaders
                     */
                 }
             }
-            
+
             //destroy(10, 0);
             //print_message(); //test
+
+            //zwiekszenie hitboxa
+            /*
+            width += elementsWidth;
+            hight += elementsHight*4;
+            this.x += elementsWidth/2;
+            this.y -= elementsHight*2;
+        */
         }
 
         public void colisionInside(FO bullet)
