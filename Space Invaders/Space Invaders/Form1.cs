@@ -15,17 +15,22 @@ namespace Space_Invaders
     {
         public static Form1 Self;
 
+        const int w = 800;
+        const int h = 600;
+
         const int FPS = 60;
-        readonly InvadersEngine invadersEngine = new InvadersEngine(1280, 720, 5,5 ,false);
+        InvadersEngine invadersEngine;
 
         Image playerImage;
         Image[,] enemyImages;
         Image playerBulletImage;
         Image enemyBulletImage;
         Image shieldPieceImage;
+        Image ufoImage;
 
         readonly string pathToPlayerImage = "..\\Images\\cannon.png";
         readonly string[,] pathToEnemyImage = { { "..\\Images\\enemy1_frame1.png", "..\\Images\\enemy1_frame2.png" }, { "..\\Images\\enemy2_frame1.png", "..\\Images\\enemy2_frame2.png" }, { "..\\Images\\enemy3_frame1.png", "..\\Images\\enemy3_frame2.png" } };
+        readonly string pathToUfoImage = "..\\Images\\ufo.png";
         const int typesCount = 3;
         const int animationFramesCount = 2;
 
@@ -80,17 +85,17 @@ namespace Space_Invaders
 
         void SpawnShields(Shield[] shields, string pictureBoxName)
         {
-            //var size= new Size((int)(invadersEngine.shieldScale * Width), (int)(invadersEngine.shieldScale * Height));
-            var size = new Size((int)(invadersEngine.shield[0].elements[0,0].Width), (int)(invadersEngine.shield[0].elements[0, 0].Hight));
+            var size = new Size((int)(invadersEngine.shield[0].elements[0, 0].Width), (int)(invadersEngine.shield[0].elements[0, 0].Hight));
             var img = shieldPieceImage;
             foreach (Shield shield in shields)
             {
                 foreach (FO shieldPiece in shield.elements)
                 {
-                    if (shieldPiece.alive) { 
-                    AssignValues(shieldPiece.sprite, (int)shieldPiece.x, (int)shieldPiece.y, size, img, pictureBoxName);
-                    Controls.Add(shieldPiece.sprite);
-                }
+                    if (shieldPiece.alive)
+                    {
+                        AssignValues(shieldPiece.sprite, (int)shieldPiece.x, (int)shieldPiece.y, size, img, pictureBoxName);
+                        Controls.Add(shieldPiece.sprite);
+                    }
                 }
             }
 
@@ -109,10 +114,10 @@ namespace Space_Invaders
                 //SpawnSingleObject(invadersEngine.gracz, playerImage, "player");
                 //SpawnEnemies(invadersEngine.Invaders, "aliveEnemy");
             }
-            if (invadersEngine.AliveCount==0)
+            if (invadersEngine.AliveCount == 0)
             {
                 gameTimer.Enabled = false;
-                MessageBox.Show("You won!\nScore: " + invadersEngine.PlayerPoints.ToString()+ "Points");
+                MessageBox.Show("You won!\nScore: " + invadersEngine.PlayerPoints.ToString() + "Points");
             }
         }
 
@@ -126,13 +131,13 @@ namespace Space_Invaders
 
         private void RenderShields()
         {
-            foreach(Shield shield in invadersEngine.shield)
+            foreach (Shield shield in invadersEngine.shield)
             {
-                if(shield.ToUpdate)
+                if (shield.ToUpdate)
                 {
-                    foreach(FO shieldPiece in shield.elements)
+                    foreach (FO shieldPiece in shield.elements)
                     {
-                        if(shieldPiece.alive==false && shieldPiece.sprite.Visible)
+                        if (shieldPiece.alive == false && shieldPiece.sprite.Visible)
                         {
                             shieldPiece.sprite.Hide();
                         }
@@ -142,18 +147,22 @@ namespace Space_Invaders
             }
         }
 
-        private void RenderSprites()
+        private void RenderPlayerSprites()
         {
             SetSpritePosition(invadersEngine.player1.sprite, (int)invadersEngine.player1.x, (int)invadersEngine.player1.y);
-            if(invadersEngine.TwoPlayersMode)
+            if (invadersEngine.TwoPlayersMode)
                 SetSpritePosition(invadersEngine.player2.sprite, (int)invadersEngine.player2.x, (int)invadersEngine.player2.y);
+        }
+
+        private void RenderEnemiesSprites()
+        {
             foreach (Inveider invader in invadersEngine.Invaders)
             {
                 if (invader.alive)
                 {
-                    //animowanie przeciwnikow (dziala ale spowalnia gre, mozna odkomentowac)
+                    //animowanie przeciwnikow 
                     invader.sprite.Image = enemyImages[invader.type, invader.spireteNum];
-                    
+
                     SetSpritePosition(invader.sprite, (int)invader.x, (int)invader.y);
                 }
                 else
@@ -165,6 +174,28 @@ namespace Space_Invaders
                     }
                 }
             }
+        }
+
+        private void RenderSaucerSprite()
+        {
+            if (invadersEngine.SaucerAlive)
+            {
+                switch (invadersEngine.Saucer.sprite.Name)
+                {
+                    case "toDraw":
+                        SpawnSingleObject(invadersEngine.Saucer, ufoImage, "alive");
+                        break;
+                    case "alive":
+                        SetSpritePosition(invadersEngine.Saucer.sprite, (int)invadersEngine.Saucer.x, (int)invadersEngine.Saucer.y);
+                        break;
+                }
+            }
+        }
+        private void RenderSprites()
+        {
+            RenderPlayerSprites();
+            RenderEnemiesSprites();
+            RenderSaucerSprite();
         }
 
         private void RenderSingleBullet(FO bullet, Image bulletImage)
@@ -194,28 +225,45 @@ namespace Space_Invaders
 
         }
 
-
+        private void alignButton(Button button, int top)
+        {
+            button.Width = logoBox.Width;
+            button.Height = OnePlayerButton.Height;
+            button.Left = logoBox.Left;
+            button.Top = top;
+        }
         public Form1()
         {
             Self = this; //troche brzydki trick, aby Form1 byl dostepny z innych klas
 
             InitializeComponent();
-
             //okno przyjmuje wielkosc planszy
-            Tuple<int, int> windowSize = invadersEngine.GetSize();
-            Width = windowSize.Item1;
-            Height = windowSize.Item2;
+            //Tuple<int, int> windowSize = invadersEngine.GetSize();
+            Width = w;
+            Height = h;
 
+            logoBox.Left = Width / 2 - logoBox.Width / 2;
+
+            alignButton(OnePlayerButton, logoBox.Top + logoBox.Height + 6);
+            alignButton(TwoPlayersButton, OnePlayerButton.Top + OnePlayerButton.Height + 4);
+            alignButton(ScoreButton, TwoPlayersButton.Top + OnePlayerButton.Height + 4);
+            ScoreButton.Enabled = false;
+            alignButton(ExitButton, ScoreButton.Top + OnePlayerButton.Height + 4);
+
+            label1.Visible = false;
+            gameTimer.Enabled = false;
             enemyImages = new Image[typesCount, animationFramesCount];
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void InitializeGame(bool twoPlayersMode)
         {
+            invadersEngine = new InvadersEngine(w, h, 5, 5, twoPlayersMode);
+
             var playerSize = new Size((int)invadersEngine.player1.Width, (int)invadersEngine.player1.Hight);
             var enemySize = new Size((int)invadersEngine.Invaders[0, 0].Width, (int)invadersEngine.Invaders[0, 0].Hight);
             var bulletSize = new Size(invadersEngine.bulletWidth, invadersEngine.bulletHeight);
-            var shieldPieceSize = new Size((int)(invadersEngine.shieldScale * Width), (int)(invadersEngine.shieldScale * Height));
-
+            var shieldPieceSize = new Size((int)(invadersEngine.shield[0].elements[0, 0].Width), (int)(invadersEngine.shield[0].elements[0, 0].Hight));
+            var ufoSize = new Size((int)invadersEngine.saucerWidth, (int)invadersEngine.saucerHeight);
 
             //przeskalowanie tekstur aby zgadzaly sie z faktycznymi wymiarami przeciwnikow
             playerImage = ResizeImage(Image.FromFile(pathToPlayerImage), playerSize);
@@ -223,7 +271,8 @@ namespace Space_Invaders
             enemyBulletImage = ResizeImage(Image.FromFile(pathToPlayerBulletImage), bulletSize);
             enemyBulletImage.RotateFlip(RotateFlipType.RotateNoneFlipY);
             shieldPieceImage = ResizeImage(Image.FromFile(pathToShieldImage), shieldPieceSize);
-            
+            ufoImage = ResizeImage(Image.FromFile(pathToUfoImage), ufoSize);
+
             for (int i = 0; i < typesCount; i++)
             {
                 for (int j = 0; j < animationFramesCount; j++)
@@ -236,17 +285,49 @@ namespace Space_Invaders
             if (invadersEngine.TwoPlayersMode)
                 SpawnSingleObject(invadersEngine.player2, playerImage, "player");
             SpawnEnemies(invadersEngine.Invaders, "aliveEnemy");
-            SpawnShields(invadersEngine.shield,"shieldPiece");
-            
+            SpawnShields(invadersEngine.shield, "shieldPiece");
+
             gameTimer.Interval = ConvertFPStoMsPerFrame(FPS);
             label1.Text = "Score: " + invadersEngine.PlayerPoints.ToString();
+            gameTimer.Enabled = true;
+        }
+
+        private void RemoveMenuComponents()
+        {
+            Controls.Remove(logoBox);
+            Controls.Remove(OnePlayerButton);
+            Controls.Remove(TwoPlayersButton);
+            Controls.Remove(ScoreButton);
+            Controls.Remove(ExitButton);
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            //InitializeGame();
         }
 
         private int ConvertFPStoMsPerFrame(int fps)
         {
-            int ms = (int)Math.Round(1000 / (double)fps );
+            int ms = (int)Math.Round(1000 / (double)fps);
             return ms;
         }
+        private void OnePlayerButton_Click(object sender, EventArgs e)
+        {
+            RemoveMenuComponents();
+            InitializeGame(false);
+        }
+
+        private void TwoPlayersButton_Click(object sender, EventArgs e)
+        {
+            RemoveMenuComponents();
+            InitializeGame(true);
+        }
+        private void ExitButton_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
@@ -257,5 +338,11 @@ namespace Space_Invaders
         {
 
         }
+
+        private void logoBox_Click(object sender, EventArgs e)
+        {
+
+        }
+
     }
 }
