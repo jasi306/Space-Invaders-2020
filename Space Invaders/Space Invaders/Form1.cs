@@ -242,6 +242,7 @@ namespace Space_Invaders
             Width = w;
             Height = h;
 
+            logoBox.Image = Image.FromFile("..\\Images\\logo.png");
             logoBox.Left = Width / 2 - logoBox.Width / 2;
 
             alignButton(OnePlayerButton, logoBox.Top + logoBox.Height + 6);
