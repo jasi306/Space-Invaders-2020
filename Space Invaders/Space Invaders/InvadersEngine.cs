@@ -243,7 +243,7 @@ namespace Space_Invaders
                         bullet.alive = false;
                         Form1.Self.Controls.Remove(bullet.sprite);
                         ToUpdate = true;
-                        Explosion explosion = new Explosion(elements[j, i].x, elements[j, i].y, expX, expY);
+                        Explosion explosion = new Explosion(elements[j, i].x, elements[j, i].y, expX*2, expY*2);
                         explosion.sprite.Name = "toDraw";
                         exp.Add(explosion);
                         //print_message();
@@ -751,7 +751,7 @@ namespace Space_Invaders
             if (r.Next() % 100 == 13)
             {//TRY!
                 int rand = r.Next() % UFOcols;
-                //rand = 2;
+                rand = 2;
                 int y;
                 for (y = UFOrows - 1; y > 0; --y)  //error y=4
                 {
@@ -814,7 +814,7 @@ namespace Space_Invaders
                 }
                 enamyBullets.ForEach(delegate (Bullet Bullet2)
                 {
-                    if (Bullet.colisionWith(Bullet2))
+                if (Bullet.colisionWith(Bullet2))
                     {
                         Bullet.alive = false;
                         Form1.Self.Controls.Remove(Bullet.sprite);
@@ -822,6 +822,8 @@ namespace Space_Invaders
                         //{
                         Bullet2.alive = false;
                         Form1.Self.Controls.Remove(Bullet2.sprite);
+                        explode(new FO((Bullet.x + Bullet2.x) / 2, (Bullet.y + Bullet2.y) / 2, Bullet.width*2, Bullet.hight*2));
+                        //explosions.Add( new Explosion();
                         //}
                     }
                 });
