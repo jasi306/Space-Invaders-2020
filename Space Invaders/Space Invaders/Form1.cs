@@ -148,8 +148,9 @@ namespace Space_Invaders
                     text = "You won!\nScore: " + invadersEngine.PlayerPoints.ToString() + "Points";
                 }
                 text += "\nWhat's your name?";
-                string a = Interaction.InputBox(text, "ScoreBoard question", "Your name");
-                modifyScoreboard(a, invadersEngine.PlayerPoints, (int)(invadersEngine.TimeOfGame / 60.0f));
+                string PlayerName = Interaction.InputBox(text, "ScoreBoard question", "");
+                if(PlayerName!="")
+                    modifyScoreboard(PlayerName, invadersEngine.PlayerPoints, (int)(invadersEngine.TimeOfGame / 60.0f));
                 //MessageBox.Show(printScoreboard());
                 Controls.Clear();
                 DisposeSprites();
@@ -183,7 +184,7 @@ namespace Space_Invaders
         static void modifyScoreboard(string name, int score, int time)
         {
             string record = name + " " + time.ToString() + " " + score.ToString();
-            string[] arrLine = File.ReadAllLines(@"f:\data.txt", Encoding.UTF8);
+            string[] arrLine = File.ReadAllLines(@"..\\ScoreBoard\\data.txt", Encoding.UTF8);
             for (int i = 0; i < 10; i++)
             {
                 var s = arrLine[i].Split(' ').Last();
@@ -194,34 +195,39 @@ namespace Space_Invaders
                     {
                         string[] th = arrLine[i].Split(' ');
                         int tR = int.Parse(th[1]);
-                        if (time < tR)
+                        if (time <= tR)
                         {
-                            string helper1 = arrLine[i];
-                            string helper2 = arrLine[i + 1];
                             record = (i + 1).ToString() + "." + record;
                             arrLine[i] = record;
-                            for (int j = i; j < 8; j++)
+                            for (int j = 9; j > i; j--)
                             {
-                                arrLine[j + 1] = helper1;
-                                helper1 = helper2;
-                                helper2 = arrLine[j + 2];
+                                arrLine[j] = arrLine[j - 1];
                             }
-                            File.WriteAllLines(@"f:\data.txt", arrLine);
-                            break;
+
                         }
 
                     }
                     else
                     {
-                        for (int j = i; j < 9; j++)
-                            arrLine[j] = arrLine[j + 1];
+                        for (int j = 9; j > i; j--)
+                        {
+                            arrLine[j] = arrLine[j - 1];
+                        }
                         record = (i + 1).ToString() + "." + record;
                         arrLine[i] = record;
 
-                        File.WriteAllLines(@"f:\data.txt", arrLine);
-                        break;
+
                     }
                     //i = 10;
+
+                    for (int z = 0; z < 10; z++)
+                    {
+                        string[] tmp = arrLine[z].Split('.');
+                        tmp[0] = (z + 1).ToString();
+                        arrLine[z] = tmp[0] + '.' + tmp[1];
+                    }
+                    File.WriteAllLines(@"..\\ScoreBoard\\data.txt", arrLine);
+                    break;
                 }
             }
         }

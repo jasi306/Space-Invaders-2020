@@ -206,7 +206,7 @@ namespace Space_Invaders
                      if (j + rows-i < 3) elements[j, i].alive = false;  //lewy góry róg.
                      if ((cols - j - 1) + rows-i < 3) elements[j, i].alive = false;  //prawy góry róg.
 
-                     if (Math.Abs(cols/2 - j) + (i-1) < 6 && (i - 1) < 3 && Math.Abs(cols / 2 - j) < 5) elements[j, i].alive = false;  //srodek
+                     if (Math.Abs(cols/2 - j) + (i-1) < 5 && (i - 1) < 3 && Math.Abs(cols / 2 - j) < 5) elements[j, i].alive = false;  //srodek
 
                     
                     //for 22x26
@@ -334,18 +334,18 @@ namespace Space_Invaders
         }
 
         //consts
-        private const float UFOsRenderTop = 0.9f;
+        private const float UFOsRenderTop = 0.85f;
         private const float UFOsRenderBottom = 0.5f;
         private const float UFOsStartXOffset = 0.1f; //how far UFO's will be from right side in start.
 
-        private const float ShildsRenderLine = 0.2f;
+        private const float ShildsRenderLine = 0.18f;
         private const float PlayerRenderLine = 0.12f;
 
         private int exposionsTime = 10;
 
-        public readonly float shieldScale = 0.1f;
+        public readonly float shieldScale = 0.08f;
 
-        private const float moveConst = 0.02f;
+        private const float moveConst = 0.018f;
 
         private int cooldown;
         //
@@ -606,7 +606,7 @@ namespace Space_Invaders
             }
             timeOfGame++;
             //MessageBox.Show("1 "+timeOfGame.ToString());
-            MoveNextUfo();
+            MoveNextUfo(); MoveNextUfo(); MoveNextUfo();
             //MessageBox.Show("2 "+timeOfGame.ToString());
             UfoTryToAttack();
 
@@ -731,7 +731,8 @@ namespace Space_Invaders
 
                 if (!_temp)
                 {
-                    MessageBox.Show(explosions.Count.ToString());
+                    
+                    MessageBox.Show(0.39 * hight + " " + (Invaders[0, 0].y - Invaders[0, 0].width) / width);
                     //pozycja gracza.
                     //MessageBox.Show("x=" + gracz.x.ToString() + ", y=" + gracz.y.ToString() );
                     //cooldown
@@ -946,7 +947,7 @@ namespace Space_Invaders
             for (int x = 0; x < UFOcols; ++x) //kolumna
                 for (int y = 0; y < UFOrows; ++y) //wiersz
                     if (Invaders[x, y].alive)
-                        if (Invaders[x, y].y - Invaders[x, y].Hight < player1.Hight + player1.y)
+                        if (Invaders[x, y].y - Invaders[x, y].Hight < 0.26*hight)
                         {
                             player1.alive = false;
                             endOfGame = true;
