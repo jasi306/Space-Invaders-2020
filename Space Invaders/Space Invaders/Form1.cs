@@ -133,23 +133,22 @@ namespace Space_Invaders
             //glowna petla aplikacji
             invadersEngine.FrameCalcs(sender, e);
             Render();
-            if (!invadersEngine.player1.alive)
-            {
-                gameTimer.Enabled = false;
-                MessageBox.Show("You lose :(\nScore: " + invadersEngine.PlayerPoints.ToString() + "Points\nRemaining enemies: " + invadersEngine.AliveCount.ToString());
-                //invadersEngine.reset();
-                //SpawnSingleObject(invadersEngine.gracz, playerImage, "player");
-                //SpawnEnemies(invadersEngine.Invaders, "aliveEnemy");
-
-            }
-            if (invadersEngine.AliveCount == 0)
-            {
-                gameTimer.Enabled = false;
-                MessageBox.Show("You won!\nScore: " + invadersEngine.PlayerPoints.ToString() + "Points");
-            }
+           
+           
             if (invadersEngine.EndOfGame)
             {
-                string a = Interaction.InputBox("hi", "hello", "name", 10, 10);
+                gameTimer.Enabled = false;
+                string text;
+                if (!invadersEngine.PlayerWon)
+                {
+                    text = "You lose :(\nScore: " + invadersEngine.PlayerPoints.ToString() + "Points\nRemaining enemies: " + invadersEngine.AliveCount.ToString();
+                }
+                else
+                {
+                    text = "You won!\nScore: " + invadersEngine.PlayerPoints.ToString() + "Points";
+                }
+                text += "\nWhat's your name?";
+                string a = Interaction.InputBox(text, "ScoreBoard question", "Your name");
                 modifyScoreboard(a, invadersEngine.PlayerPoints, (int)(invadersEngine.TimeOfGame / 60.0f));
                 //MessageBox.Show(printScoreboard());
                 Controls.Clear();
@@ -181,30 +180,47 @@ namespace Space_Invaders
             }
             return text;
         }
-
         static void modifyScoreboard(string name, int score, int time)
         {
             string record = name + " " + time.ToString() + " " + score.ToString();
-            string[] arrLine = File.ReadAllLines(@"..\\ScoreBoard\\data.txt", Encoding.UTF8);
+            string[] arrLine = File.ReadAllLines(@"f:\data.txt", Encoding.UTF8);
             for (int i = 0; i < 10; i++)
             {
                 var s = arrLine[i].Split(' ').Last();
                 var t = int.Parse(s);
-                if (t == 0 || score > t)
+                if (t == 0 || score >= t)
                 {
                     if (t == score)
                     {
                         string[] th = arrLine[i].Split(' ');
                         int tR = int.Parse(th[1]);
-                        if (time >= tR) continue;
-                    }
-                    for (int j = i; j < 9; j++)
-                        arrLine[j] = arrLine[j + 1];
-                    record = (i + 1).ToString() + "." + record;
-                    arrLine[i] = record;
+                        if (time < tR)
+                        {
+                            string helper1 = arrLine[i];
+                            string helper2 = arrLine[i + 1];
+                            record = (i + 1).ToString() + "." + record;
+                            arrLine[i] = record;
+                            for (int j = i; j < 8; j++)
+                            {
+                                arrLine[j + 1] = helper1;
+                                helper1 = helper2;
+                                helper2 = arrLine[j + 2];
+                            }
+                            File.WriteAllLines(@"f:\data.txt", arrLine);
+                            break;
+                        }
 
-                    File.WriteAllLines(@"..\\ScoreBoard\\data.txt", arrLine);
-                    break;
+                    }
+                    else
+                    {
+                        for (int j = i; j < 9; j++)
+                            arrLine[j] = arrLine[j + 1];
+                        record = (i + 1).ToString() + "." + record;
+                        arrLine[i] = record;
+
+                        File.WriteAllLines(@"f:\data.txt", arrLine);
+                        break;
+                    }
                     //i = 10;
                 }
             }
