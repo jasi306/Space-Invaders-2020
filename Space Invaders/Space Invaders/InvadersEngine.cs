@@ -128,7 +128,7 @@ namespace Space_Invaders
                     points = 100;
                     break;
                 default:
-                    MessageBox.Show("Error! nieistniejacy typ obcego");  //---------<<<<<<< niefachowo?
+                    MessageBox.Show("Error! nieistniejacy typ obcego"); 
                     break;
             }
         }
@@ -606,7 +606,7 @@ namespace Space_Invaders
             }
             timeOfGame++;
             //MessageBox.Show("1 "+timeOfGame.ToString());
-            MoveNextUfo(); MoveNextUfo(); MoveNextUfo();
+            MoveNextUfo(); 
             //MessageBox.Show("2 "+timeOfGame.ToString());
             UfoTryToAttack();
 
