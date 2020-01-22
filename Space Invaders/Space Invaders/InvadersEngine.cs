@@ -243,7 +243,9 @@ namespace Space_Invaders
                         bullet.alive = false;
                         Form1.Self.Controls.Remove(bullet.sprite);
                         ToUpdate = true;
-                        exp.Add(new Explosion(elements[j, i].x, elements[j, i].y, expX, expY));
+                        Explosion explosion = new Explosion(elements[j, i].x, elements[j, i].y, expX, expY);
+                        explosion.sprite.Name = "toDraw";
+                        exp.Add(explosion);
                         //print_message();
                     }
                 }
@@ -314,6 +316,23 @@ namespace Space_Invaders
         public List<Explosion> explosions;
 
         private float expX, expY;
+        public float ExpX
+        {
+            get => expX;
+            private set
+            {
+                expX = value;
+            }
+        }
+        public float ExpY
+        {
+            get => expY;
+            private set
+            {
+                expY = value;
+            }
+        }
+
         //consts
         private const float UFOsRenderTop = 0.9f;
         private const float UFOsRenderBottom = 0.5f;
@@ -605,6 +624,12 @@ namespace Space_Invaders
             }
 
         }
+        public void explode(FO enemy)
+        {
+            Explosion explosion = new Explosion(enemy.x, enemy.y, enemy.width, enemy.hight);
+            explosion.sprite.Name = "toDraw";
+            explosions.Add(explosion);
+        }
 
         void animateExplosion()
         {
@@ -753,6 +778,7 @@ namespace Space_Invaders
             enamyBullets.Add(bullet);
         }
 
+        
 
         public void firePlayer(Player player)
         {
@@ -782,7 +808,7 @@ namespace Space_Invaders
                         playSound(SaucerDeadthS);
                         Form1.Self.Controls.Remove(Bullet.sprite);
                         Form1.Self.Controls.Remove(Saucer.sprite);
-                        explosions.Add(new Explosion(Saucer.x, Saucer.y, expX, expY));
+                        explode(Saucer);
                         timeOfLastSaucer = TimeOfGame;
                     }
                 }
@@ -820,8 +846,9 @@ namespace Space_Invaders
                                 PlayerPoints += Invaders[i, j].points;
                                 Bullet.alive = false;
                                 playSound(alienDeadthS);
-                                explosions.Add(new Explosion(Invaders[i, j].x, Invaders[i, j].y, expX, expY));
+                                explode(Invaders[i, j]);
 
+                                
 
                                 //MessageBox.Show(PlayerPoints.ToString());
 

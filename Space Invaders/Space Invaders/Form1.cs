@@ -28,6 +28,7 @@ namespace Space_Invaders
         Image enemyBulletImage;
         Image shieldPieceImage;
         Image ufoImage;
+        Image explosionImage;
 
         readonly string pathToPlayerImage = "..\\Images\\cannon.png";
         readonly string[,] pathToEnemyImage = { { "..\\Images\\enemy1_frame1.png", "..\\Images\\enemy1_frame2.png" }, { "..\\Images\\enemy2_frame1.png", "..\\Images\\enemy2_frame2.png" }, { "..\\Images\\enemy3_frame1.png", "..\\Images\\enemy3_frame2.png" } };
@@ -41,6 +42,7 @@ namespace Space_Invaders
         readonly string pathToShieldImage = "..\\Images\\shield.png";
         readonly string pathToPlayerBulletImage = "..\\Images\\cannon.png";
         readonly string pathToEnemyBulletImage = "..\\Images\\cannon.png";
+        readonly string pathToExplosionImage = "..\\Images\\explosion.png";
 
         public static Image ResizeImage(Image imgToResize, Size size)
         {
@@ -172,7 +174,23 @@ namespace Space_Invaders
             RenderSprites();
             RenderBullets();
             RenderShields();
+            RenderExplosions();
             label1.Text = "Score: " + invadersEngine.PlayerPoints.ToString();
+        }
+
+        private void RenderExplosions()
+        {
+            foreach(Explosion explosion in invadersEngine.explosions)
+            {
+                switch (explosion.sprite.Name)
+                {
+                    case "toDraw":
+                        var size = new Size((int)explosion.width, (int)explosion.hight);
+                        Image expImage = ResizeImage(explosionImage, size);
+                        SpawnSingleObject(explosion, expImage, "alive");
+                        break;
+                }
+            }
         }
 
         private void RenderShields()
@@ -311,7 +329,7 @@ namespace Space_Invaders
             var bulletSize = new Size(invadersEngine.bulletWidth, invadersEngine.bulletHeight);
             var shieldPieceSize = new Size((int)(invadersEngine.shield[0].elements[0, 0].Width), (int)(invadersEngine.shield[0].elements[0, 0].Hight));
             var ufoSize = new Size((int)invadersEngine.saucerWidth, (int)invadersEngine.saucerHeight);
-
+            
             //przeskalowanie tekstur aby zgadzaly sie z faktycznymi wymiarami przeciwnikow
             playerImage = ResizeImage(Image.FromFile(pathToPlayerImage), playerSize);
             playerBulletImage = ResizeImage(Image.FromFile(pathToPlayerBulletImage), bulletSize);
@@ -319,6 +337,7 @@ namespace Space_Invaders
             enemyBulletImage.RotateFlip(RotateFlipType.RotateNoneFlipY);
             shieldPieceImage = ResizeImage(Image.FromFile(pathToShieldImage), shieldPieceSize);
             ufoImage = ResizeImage(Image.FromFile(pathToUfoImage), ufoSize);
+            explosionImage = Image.FromFile(pathToExplosionImage);
 
             for (int i = 0; i < typesCount; i++)
             {
@@ -337,6 +356,7 @@ namespace Space_Invaders
             gameTimer.Interval = ConvertFPStoMsPerFrame(FPS);
             label1.Text = "Score: " + invadersEngine.PlayerPoints.ToString();
             gameTimer.Enabled = true;
+            label1.Visible = true;
         }
 
         private void RemoveMenuComponents()
