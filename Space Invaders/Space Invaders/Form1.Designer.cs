@@ -37,6 +37,7 @@
             this.TwoPlayersButton = new System.Windows.Forms.Button();
             this.ScoreButton = new System.Windows.Forms.Button();
             this.ExitButton = new System.Windows.Forms.Button();
+            this.toMenuButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.logoBox)).BeginInit();
             this.SuspendLayout();
             // 
@@ -110,6 +111,7 @@
             this.ScoreButton.TabIndex = 4;
             this.ScoreButton.Text = "Tabela wyników";
             this.ScoreButton.UseVisualStyleBackColor = false;
+            this.ScoreButton.Click += new System.EventHandler(this.ScoreButton_Click);
             // 
             // ExitButton
             // 
@@ -117,13 +119,27 @@
             this.ExitButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(199)))), ((int)(((byte)(213)))), ((int)(((byte)(104)))));
             this.ExitButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 17F);
             this.ExitButton.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.ExitButton.Location = new System.Drawing.Point(24, 361);
+            this.ExitButton.Location = new System.Drawing.Point(45, 361);
             this.ExitButton.Name = "ExitButton";
             this.ExitButton.Size = new System.Drawing.Size(354, 58);
             this.ExitButton.TabIndex = 5;
             this.ExitButton.Text = "Wyjdź";
             this.ExitButton.UseVisualStyleBackColor = false;
             this.ExitButton.Click += new System.EventHandler(this.ExitButton_Click);
+            // 
+            // toMenuButton
+            // 
+            this.toMenuButton.AccessibleRole = System.Windows.Forms.AccessibleRole.None;
+            this.toMenuButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(199)))), ((int)(((byte)(213)))), ((int)(((byte)(104)))));
+            this.toMenuButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 17F);
+            this.toMenuButton.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.toMenuButton.Location = new System.Drawing.Point(401, 441);
+            this.toMenuButton.Name = "toMenuButton";
+            this.toMenuButton.Size = new System.Drawing.Size(354, 58);
+            this.toMenuButton.TabIndex = 6;
+            this.toMenuButton.Text = "Powrót do Menu";
+            this.toMenuButton.UseVisualStyleBackColor = false;
+            this.toMenuButton.Click += new System.EventHandler(this.toMenuButton_Click);
             // 
             // Form1
             // 
@@ -132,6 +148,7 @@
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(199)))), ((int)(((byte)(213)))), ((int)(((byte)(104)))));
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.ClientSize = new System.Drawing.Size(782, 553);
+            this.Controls.Add(this.toMenuButton);
             this.Controls.Add(this.ExitButton);
             this.Controls.Add(this.ScoreButton);
             this.Controls.Add(this.TwoPlayersButton);
@@ -160,6 +177,7 @@
         private System.Windows.Forms.Button TwoPlayersButton;
         private System.Windows.Forms.Button ScoreButton;
         private System.Windows.Forms.Button ExitButton;
+        private System.Windows.Forms.Button toMenuButton;
     }
 }
 

@@ -106,6 +106,23 @@ namespace Space_Invaders
             }
 
         }
+
+        private void DisposeSprites()
+        {
+            invadersEngine.player1.sprite.Dispose();
+            if (invadersEngine.TwoPlayersMode)
+                invadersEngine.player2.sprite.Dispose();
+            foreach(Inveider invader in invadersEngine.Invaders)
+                invader.sprite.Dispose();
+            foreach(Shield shield in invadersEngine.shield)
+            {
+                foreach(FO shieldPiece in shield.elements)
+                {
+                    shieldPiece.sprite.Dispose();
+                }
+            }
+
+        }
         private void gameTimer_Tick(object sender, EventArgs e)
         {
             //glowna petla aplikacji
@@ -119,6 +136,7 @@ namespace Space_Invaders
                 //invadersEngine.reset();
                 //SpawnSingleObject(invadersEngine.gracz, playerImage, "player");
                 //SpawnEnemies(invadersEngine.Invaders, "aliveEnemy");
+
             }
             if (invadersEngine.AliveCount == 0)
             {
@@ -128,10 +146,25 @@ namespace Space_Invaders
             if (invadersEngine.EndOfGame)
             {
                 modifyScoreboard("noname", invadersEngine.PlayerPoints, (int)(invadersEngine.TimeOfGame / 60.0f));
-                MessageBox.Show(printScoreboard());
+                //MessageBox.Show(printScoreboard());
+                Controls.Clear();
+                DisposeSprites();
+                InitScoreboard();
             }
         }
-
+        
+        void InitScoreboard()
+        {
+            Label scoreboard = new Label();
+            scoreboard.Font = new Font(label1.Font.Name, 22F);
+            scoreboard.Text = printScoreboard();
+            scoreboard.Top = Height / 20;
+            scoreboard.Left = Width / 2 - (scoreboard.Width / 2);
+            scoreboard.Height = (int)(0.6*Height);
+            alignButton(toMenuButton, 3 * Height / 4);
+            Controls.Add(scoreboard);
+            Controls.Add(toMenuButton);
+        }
 
         static string printScoreboard()
         {
@@ -296,6 +329,26 @@ namespace Space_Invaders
             button.Left = logoBox.Left;
             button.Top = top;
         }
+
+        private void InitMenu()
+        {
+
+            logoBox.Image = Image.FromFile("..\\Images\\logo.png");
+            logoBox.Left = Width / 2 - logoBox.Width / 2;
+
+            alignButton(OnePlayerButton, logoBox.Top + logoBox.Height + 6);
+            alignButton(TwoPlayersButton, OnePlayerButton.Top + OnePlayerButton.Height + 4);
+            alignButton(ScoreButton, TwoPlayersButton.Top + OnePlayerButton.Height + 4);
+            alignButton(ExitButton, ScoreButton.Top + OnePlayerButton.Height + 4);
+
+            Controls.Add(logoBox);
+            Controls.Add(OnePlayerButton);
+            Controls.Add(TwoPlayersButton);
+            Controls.Add(ScoreButton);
+            Controls.Add(ExitButton);
+            label1.Visible = true;
+            gameTimer.Enabled = false;
+        }
         public Form1()
         {
             Self = this; //troche brzydki trick, aby Form1 byl dostepny z innych klas
@@ -305,18 +358,9 @@ namespace Space_Invaders
             //Tuple<int, int> windowSize = invadersEngine.GetSize();
             Width = w;
             Height = h;
+            Controls.Clear();
+            InitMenu();
 
-            logoBox.Image = Image.FromFile("..\\Images\\logo.png");
-            logoBox.Left = Width / 2 - logoBox.Width / 2;
-
-            alignButton(OnePlayerButton, logoBox.Top + logoBox.Height + 6);
-            alignButton(TwoPlayersButton, OnePlayerButton.Top + OnePlayerButton.Height + 4);
-            alignButton(ScoreButton, TwoPlayersButton.Top + OnePlayerButton.Height + 4);
-            ScoreButton.Enabled = false;
-            alignButton(ExitButton, ScoreButton.Top + OnePlayerButton.Height + 4);
-
-            label1.Visible = false;
-            gameTimer.Enabled = false;
             enemyImages = new Image[typesCount, animationFramesCount];
         }
 
@@ -356,7 +400,7 @@ namespace Space_Invaders
             gameTimer.Interval = ConvertFPStoMsPerFrame(FPS);
             label1.Text = "Score: " + invadersEngine.PlayerPoints.ToString();
             gameTimer.Enabled = true;
-            label1.Visible = true;
+            Controls.Add(label1);
         }
 
         private void RemoveMenuComponents()
@@ -388,6 +432,16 @@ namespace Space_Invaders
         {
             RemoveMenuComponents();
             InitializeGame(true);
+        }
+        private void toMenuButton_Click(object sender, EventArgs e)
+        {
+            Controls.Clear();
+            InitMenu();
+        }
+        private void ScoreButton_Click(object sender, EventArgs e)
+        {
+            Controls.Clear();
+            InitScoreboard();
         }
         private void ExitButton_Click(object sender, EventArgs e)
         {
