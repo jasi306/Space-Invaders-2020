@@ -128,7 +128,6 @@ namespace Space_Invaders
             //glowna petla aplikacji
             invadersEngine.FrameCalcs(sender, e);
             Render();
-
             if (!invadersEngine.player1.alive)
             {
                 gameTimer.Enabled = false;
@@ -179,20 +178,24 @@ namespace Space_Invaders
 
         static void modifyScoreboard(string name, int score, int time)
         {
-            string record = name + " " + score.ToString() + " " + time.ToString();
+            string record = name + " " + time.ToString() + " " + score.ToString();
             string[] arrLine = File.ReadAllLines(@"..\\ScoreBoard\\data.txt", Encoding.UTF8);
-
             for (int i = 0; i < 10; i++)
             {
-                var h = arrLine[i].Split(' ').Last();
-                var t = int.Parse(h);
-                if (t == 0 || time < t)
+                var s = arrLine[i].Split(' ').Last();
+                var t = int.Parse(s);
+                if (t == 0 || score > t)
                 {
+                    if (t == score)
+                    {
+                        string[] th = arrLine[i].Split(' ');
+                        int tR = int.Parse(th[1]);
+                        if (time >= tR) continue;
+                    }
                     for (int j = i; j < 9; j++)
                         arrLine[j] = arrLine[j + 1];
                     record = (i + 1).ToString() + "." + record;
                     arrLine[i] = record;
-
 
                     File.WriteAllLines(@"..\\ScoreBoard\\data.txt", arrLine);
                     break;

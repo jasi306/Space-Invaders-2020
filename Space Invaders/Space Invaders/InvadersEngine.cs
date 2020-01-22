@@ -720,7 +720,6 @@ namespace Space_Invaders
                 if (Keyboard.IsKeyDown(Key.Up) || Keyboard.IsKeyDown(Key.Enter))
                     firePlayer(player2);
 
-
             }
 
 
