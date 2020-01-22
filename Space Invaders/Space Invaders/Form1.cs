@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Text;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -29,6 +30,8 @@ namespace Space_Invaders
         Image shieldPieceImage;
         Image ufoImage;
         Image explosionImage;
+
+        PrivateFontCollection customFonts;
 
         readonly string pathToPlayerImage = "..\\Images\\cannon.png";
         readonly string[,] pathToEnemyImage = { { "..\\Images\\enemy1_frame1.png", "..\\Images\\enemy1_frame2.png" }, { "..\\Images\\enemy2_frame1.png", "..\\Images\\enemy2_frame2.png" }, { "..\\Images\\enemy3_frame1.png", "..\\Images\\enemy3_frame2.png" } };
@@ -155,12 +158,12 @@ namespace Space_Invaders
         void InitScoreboard()
         {
             Label scoreboard = new Label();
-            scoreboard.Font = new Font(label1.Font.Name, 22F);
+            scoreboard.Font = new Font(customFonts.Families[0], 16);
+            scoreboard.AutoSize = true;
             scoreboard.Text = printScoreboard();
             scoreboard.Top = Height / 20;
-            scoreboard.Left = Width / 2 - (scoreboard.Width / 2);
-            scoreboard.Height = (int)(0.6*Height);
-            alignButton(toMenuButton, 3 * Height / 4);
+            scoreboard.Left = Width / 2 - (scoreboard.Width);
+            AlignButton(toMenuButton, 3 * Height / 4);
             Controls.Add(scoreboard);
             Controls.Add(toMenuButton);
         }
@@ -325,8 +328,9 @@ namespace Space_Invaders
 
         }
 
-        private void alignButton(Button button, int top)
+        private void AlignButton(Button button, int top)
         {
+            button.Font = new Font(customFonts.Families[0], 17);
             button.Width = logoBox.Width;
             button.Height = OnePlayerButton.Height;
             button.Left = logoBox.Left;
@@ -339,10 +343,10 @@ namespace Space_Invaders
             logoBox.Image = Image.FromFile("..\\Images\\logo.png");
             logoBox.Left = Width / 2 - logoBox.Width / 2;
 
-            alignButton(OnePlayerButton, logoBox.Top + logoBox.Height + 6);
-            alignButton(TwoPlayersButton, OnePlayerButton.Top + OnePlayerButton.Height + 4);
-            alignButton(ScoreButton, TwoPlayersButton.Top + OnePlayerButton.Height + 4);
-            alignButton(ExitButton, ScoreButton.Top + OnePlayerButton.Height + 4);
+            AlignButton(OnePlayerButton, logoBox.Top + logoBox.Height + 6);
+            AlignButton(TwoPlayersButton, OnePlayerButton.Top + OnePlayerButton.Height + 4);
+            AlignButton(ScoreButton, TwoPlayersButton.Top + OnePlayerButton.Height + 4);
+            AlignButton(ExitButton, ScoreButton.Top + OnePlayerButton.Height + 4);
 
             Controls.Add(logoBox);
             Controls.Add(OnePlayerButton);
@@ -355,6 +359,9 @@ namespace Space_Invaders
         public Form1()
         {
             Self = this; //troche brzydki trick, aby Form1 byl dostepny z innych klas
+            customFonts = new PrivateFontCollection();
+            customFonts.AddFontFile("..\\Fonts\\font.ttf");
+
 
             InitializeComponent();
             //okno przyjmuje wielkosc planszy
