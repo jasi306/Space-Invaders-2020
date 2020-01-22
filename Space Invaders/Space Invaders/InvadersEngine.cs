@@ -416,7 +416,7 @@ namespace Space_Invaders
                 saucerAlive = value;
             }
         }
-
+        private long timeOfLastSaucer;
         private long timeOfGame;    //liczy klatki
         public long TimeOfGame
         {
@@ -454,6 +454,7 @@ namespace Space_Invaders
 
             PlayerPoints = 0;
             timeOfGame = 0;
+            timeOfLastSaucer = 600;
 
             this.TwoPlayersMode = TwoPlayersMode;
 
@@ -627,26 +628,27 @@ namespace Space_Invaders
             if (SaucerAlive)
             {
          
-                Saucer.move(-10, 0);
+                Saucer.move(-8, 0);
                 if (Saucer.x + Saucer.Width < 0)
                 {
                     Saucer.alive = false;
                     saucerAlive = false;
                     Form1.Self.Controls.Remove(Saucer.sprite);
                     SaucerAliveS.Stop();
+                    timeOfLastSaucer = TimeOfGame;
                 }
             }
             else
             {
 
-                if (timeOfGame > AliveCount * 0 && !SaucerAlive)
+                if (timeOfGame > timeOfLastSaucer && !SaucerAlive)
                     tryToSpawnSaucer();
             }
         }
         void tryToSpawnSaucer()
         {
             Random r = new Random();
-            if (r.Next() % 1 == 0 && SaucerBorning == false)
+            if (r.Next() % 120 == 7 && SaucerBorning == false)
             {
                 SaucerBorning = true;
                 Saucer = new Inveider(width, hight * 0.9f, saucerWidth, saucerHeight, 3);
@@ -781,6 +783,7 @@ namespace Space_Invaders
                         Form1.Self.Controls.Remove(Bullet.sprite);
                         Form1.Self.Controls.Remove(Saucer.sprite);
                         explosions.Add(new Explosion(Saucer.x, Saucer.y, expX, expY));
+                        timeOfLastSaucer = TimeOfGame;
                     }
                 }
                 enamyBullets.ForEach(delegate (Bullet Bullet2)
