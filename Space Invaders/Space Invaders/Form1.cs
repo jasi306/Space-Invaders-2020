@@ -19,7 +19,7 @@ namespace Space_Invaders
         public static Form1 Self;
 
         const int w = 800;
-        const int h = 640;
+        const int h = 600;
 
         const int FPS = 60;
         InvadersEngine invadersEngine;
