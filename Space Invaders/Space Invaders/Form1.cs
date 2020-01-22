@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+using Microsoft.VisualBasic;
 
 namespace Space_Invaders
 {
@@ -128,6 +129,7 @@ namespace Space_Invaders
         }
         private void gameTimer_Tick(object sender, EventArgs e)
         {
+            
             //glowna petla aplikacji
             invadersEngine.FrameCalcs(sender, e);
             Render();
@@ -147,7 +149,8 @@ namespace Space_Invaders
             }
             if (invadersEngine.EndOfGame)
             {
-                modifyScoreboard("noname", invadersEngine.PlayerPoints, (int)(invadersEngine.TimeOfGame / 60.0f));
+                string a = Interaction.InputBox("hi", "hello", "name", 10, 10);
+                modifyScoreboard(a, invadersEngine.PlayerPoints, (int)(invadersEngine.TimeOfGame / 60.0f));
                 //MessageBox.Show(printScoreboard());
                 Controls.Clear();
                 DisposeSprites();
