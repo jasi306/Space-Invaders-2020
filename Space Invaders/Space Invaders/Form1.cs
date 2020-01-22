@@ -18,8 +18,8 @@ namespace Space_Invaders
     {
         public static Form1 Self;
 
-        const int w = 800;
-        const int h = 600;
+        const int w = 640;
+        const int h = 480;
 
         const int FPS = 60;
         InvadersEngine invadersEngine;
@@ -240,6 +240,7 @@ namespace Space_Invaders
             RenderShields();
             RenderExplosions();
             label1.Text = "Score: " + invadersEngine.PlayerPoints.ToString();
+            label1.Left = Width - label1.Width - 15;
         }
 
         private void RenderExplosions()
@@ -434,6 +435,8 @@ namespace Space_Invaders
 
             gameTimer.Interval = ConvertFPStoMsPerFrame(FPS);
             label1.Text = "Score: " + invadersEngine.PlayerPoints.ToString();
+            label1.Font = new Font(customFonts.Families[0], 10);
+            label1.AutoSize = true;
             gameTimer.Enabled = true;
             Controls.Add(label1);
         }
